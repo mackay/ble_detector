@@ -100,12 +100,31 @@ class ScanPrint(btle.DefaultDelegate):
         print
 
 
+class ScanDetector(btle.DefaultDelegate):
+
+    def __init__(self, opts):
+        btle.DefaultDelegate.__init__(self)
+        self.opts = opts
+
+    def handleDiscovery(self, dev, isNewDev, isNewData):
+        if self.opts.prefix and not dev.addr.startswith(self.opts.prefix):
+            return
+
+        print ( '(%s): (%d)' % ( dev.addr, dev.rssi ) )
+        print
+
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--hci', action='store', type=int, default=0,
                         help='Interface number for scan')
-    parser.add_argument('-t', '--timeout', action='store', type=int, default=4000,
+    parser.add_argument('-t', '--timeout', action='store', type=int, default=300,
                         help='Scan delay, 0 for continuous')
+
+    parser.add_argument('-p', '--prefix', action='store', type=str, default=None,
+                        help='Filter to id prefxes of ...')
+
     parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
                         help='dBm value for filtering far devices')
     parser.add_argument('-d', '--discover', action='store_true',
@@ -120,7 +139,7 @@ def main():
 
     btle.Debugging = arg.verbose
 
-    scanner = btle.Scanner(arg.hci).withDelegate(ScanPrint(arg))
+    scanner = btle.Scanner(arg.hci).withDelegate(ScanDetector(arg))
 
     print (ANSI_RED + "Scanning for devices..." + ANSI_OFF)
     devices = scanner.scan( float(arg.timeout) / 1000 )
