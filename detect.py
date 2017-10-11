@@ -125,7 +125,6 @@ def main():
                         help='Scan repeat times, -1 for continuous')
     parser.add_argument('-p', '--prefix', action='store', type=str, default=None,
                         help='Filter to id prefxes of ...')
-
     parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
                         help='dBm value for filtering far devices')
     parser.add_argument('-d', '--discover', action='store_true',
