@@ -121,7 +121,8 @@ def main():
                         help='Interface number for scan')
     parser.add_argument('-t', '--timeout', action='store', type=int, default=300,
                         help='Scan delay, 0 for continuous')
-
+    parser.add_argument('-t', '--loop', action='store', type=int, default=1,
+                        help='Scan repeat times, -1 for continuous')
     parser.add_argument('-p', '--prefix', action='store', type=str, default=None,
                         help='Filter to id prefxes of ...')
 
@@ -141,23 +142,18 @@ def main():
 
     scanner = btle.Scanner(arg.hci).withDelegate(ScanDetector(arg))
 
-    print (ANSI_RED + "Scanning for devices..." + ANSI_OFF)
-    devices = scanner.scan( float(arg.timeout) / 1000 )
+    loop_label = str(arg.loops) if arg.loops else "continuous"
 
-    if arg.discover:
-        print (ANSI_RED + "Discovering services..." + ANSI_OFF)
+    print (ANSI_RED + "Scanning for devices... (%s loops)" % (loop_label) + ANSI_OFF)
 
-        for d in devices:
-            if not d.connectable:
+    keep_looping = True
+    while keep_looping:
+        scanner.scan( float(arg.timeout) / 1000 )
 
-                continue
-
-            print ("    Connecting to", ANSI_WHITE + d.addr + ANSI_OFF + ":")
-
-            dev = btle.Peripheral(d)
-            dump_services(dev)
-            dev.disconnect()
-            print
+        if arg.loops > 0:
+            arg.loops -= 1
+        if arg.loops == 0:
+            keep_looping = False
 
 if __name__ == "__main__":
     main()
