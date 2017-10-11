@@ -121,7 +121,7 @@ def main():
                         help='Interface number for scan')
     parser.add_argument('-t', '--timeout', action='store', type=int, default=300,
                         help='Scan delay, 0 for continuous')
-    parser.add_argument('-t', '--loop', action='store', type=int, default=1,
+    parser.add_argument('-l', '--loop', action='store', type=int, default=1,
                         help='Scan repeat times, -1 for continuous')
     parser.add_argument('-p', '--prefix', action='store', type=str, default=None,
                         help='Filter to id prefxes of ...')
