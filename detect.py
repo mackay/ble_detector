@@ -107,7 +107,8 @@ class ScanDetector(btle.DefaultDelegate):
         self.opts = opts
 
         self.values_map = { }
-        self.max_value_history = 3
+        self.packets = opts.packets
+        self.reject = opts.reject
 
     def handleDiscovery(self, dev, isNewDev, isNewData):
         if self.opts.prefix and not dev.addr.startswith(self.opts.prefix):
@@ -128,8 +129,8 @@ class ScanDetector(btle.DefaultDelegate):
     def get_computed_value(self, addr):
         avg_set = self.values_map[addr]
 
-        if self.opts.reject and len(avg_set) > self.opts.packets - self.opts.reject:
-            avg_set = avg_set.sort()[(self.opts.packets - self.opts.reject):]
+        if self.reject and len(avg_set) > self.packets - self.reject:
+            avg_set = avg_set.sort()[(self.packets - self.reject):]
 
         avg = sum(avg_set) / float(len(avg_set))
 
