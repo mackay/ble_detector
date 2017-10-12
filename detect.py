@@ -106,13 +106,34 @@ class ScanDetector(btle.DefaultDelegate):
         btle.DefaultDelegate.__init__(self)
         self.opts = opts
 
+        self.values_map = { }
+        self.max_value_history = 3
+
     def handleDiscovery(self, dev, isNewDev, isNewData):
         if self.opts.prefix and not dev.addr.startswith(self.opts.prefix):
             return
 
-        print ( '(%s): (%d)' % ( dev.addr, dev.rssi ) )
+        self.add_value(dev.addr, dev.rssi)
+
+        print ( '(%s): (%d) - (%d)' % ( dev.addr, dev.rssi, self.get_computed_value(dev.addr) ) )
         print
 
+    def add_value(self, addr, rssi):
+        if addr not in self.values_map.keys():
+            self.values_map[addr] = [ ]
+
+        self.values_map[addr].append(rssi)
+        self.values_map[addr] = self.values_map[addr][-1*self.opts.packets:]
+
+    def get_computed_value(self, addr):
+        avg_set = self.values_map[addr]
+
+        if self.opts.reject and len(avg_set) > self.opts.packets - self.opts.reject:
+            avg_set = avg_set.sort()[(self.opts.packets - self.opts.reject):]
+
+        avg = sum(avg_set) / float(len(avg_set))
+
+        return avg
 
 
 def main():
@@ -127,12 +148,12 @@ def main():
                         help='Filter to id prefxes of ...')
     parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
                         help='dBm value for filtering far devices')
-    parser.add_argument('-d', '--discover', action='store_true',
-                        help='Connect and discover service to scanned devices')
-    parser.add_argument('-a', '--all', action='store_true',
-                        help='Display duplicate adv responses, by default show new + updated')
-    parser.add_argument('-n', '--new', action='store_true',
-                        help='Display only new adv responses, by default show new + updated')
+
+    parser.add_argument('--packets', action='store', type=int, default=3,
+                        help='Average RSSI values across this # of packets')
+    parser.add_argument('--reject', action='store', type=int, default=0,
+                        help='Reject # of the lowest RSSI valued packets')
+
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Increase output verbosity')
     arg = parser.parse_args(sys.argv[1:])
