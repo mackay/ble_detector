@@ -40,11 +40,8 @@ class ScanDetector(btle.DefaultDelegate):
     def handleDiscovery(self, dev, isNewDev, isNewData):
         if self.opts.prefix and not dev.addr.startswith(self.opts.prefix):
             return
-
         self.add_value(dev.addr, dev.rssi)
-
-        print ( '(%s): (%d) - (%d)' % ( dev.addr, dev.rssi, self.get_computed_value(dev.addr) ) )
-        print
+        print ( '%s\t%d\t%d' % ( dev.addr, dev.rssi, self.get_computed_value(dev.addr) ) )
 
     def add_value(self, addr, rssi):
         if addr not in self.values_map.keys():
@@ -54,22 +51,28 @@ class ScanDetector(btle.DefaultDelegate):
         self.values_map[addr] = self.values_map[addr][-1*self.opts.packets:]
 
     def get_computed_value(self, addr):
-        avg_set = self.values_map[addr] or [ ]
+        if addr not in self.values_map.keys():
+            self.values_map[addr] = [ ]
 
-        if self.reject and len(avg_set) > ( self.packets - self.reject ):
-            avg_set.sort()
-            avg_set = avg_set[(self.packets - self.reject):]
+        avg_set = self.values_map[addr][:]
 
-        avg = sum(avg_set) / float(len(avg_set))
+        if avg_set:
+            if self.reject and len(avg_set) > ( self.packets - self.reject ):
+                avg_set.sort()
+                avg_set = avg_set[(self.packets - self.reject):]
 
-        return avg
+            avg = sum(avg_set) / float(len(avg_set))
+
+            return avg
+
+        return -128
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--hci', action='store', type=int, default=0,
                         help='Interface number for scan')
-    parser.add_argument('-t', '--timeout', action='store', type=int, default=300,
+    parser.add_argument('-t', '--timeout', action='store', type=int, default=150,
                         help='Scan delay, 0 for continuous')
     parser.add_argument('-l', '--loops', action='store', type=int, default=1,
                         help='Scan repeat times, -1 for continuous')
@@ -78,9 +81,9 @@ def main():
     parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
                         help='dBm value for filtering far devices')
 
-    parser.add_argument('--packets', action='store', type=int, default=3,
+    parser.add_argument('--packets', action='store', type=int, default=5,
                         help='Average RSSI values across this # of packets')
-    parser.add_argument('--reject', action='store', type=int, default=0,
+    parser.add_argument('--reject', action='store', type=int, default=2,
                         help='Reject # of the lowest RSSI valued packets')
 
     parser.add_argument('-v', '--verbose', action='store_true',
