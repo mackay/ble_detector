@@ -2,10 +2,29 @@
 
 #sourced from Ian Harvey's bluepy blescan.py
 #https://raw.githubusercontent.com/IanHarvey/bluepy/master/bluepy/blescan.py
+from __future__ import print_function
+import os
 
 import argparse
 import sys
 from bluepy import btle
+
+if os.getenv('C', '1') == '0':
+    ANSI_RED = ''
+    ANSI_GREEN = ''
+    ANSI_YELLOW = ''
+    ANSI_CYAN = ''
+    ANSI_WHITE = ''
+    ANSI_OFF = ''
+else:
+    ANSI_CSI = "\033["
+    ANSI_RED = ANSI_CSI + '31m'
+    ANSI_GREEN = ANSI_CSI + '32m'
+    ANSI_YELLOW = ANSI_CSI + '33m'
+    ANSI_CYAN = ANSI_CSI + '36m'
+    ANSI_WHITE = ANSI_CSI + '37m'
+    ANSI_OFF = ANSI_CSI + '0m'
+
 
 
 class ScanDetector(btle.DefaultDelegate):
