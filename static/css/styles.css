@@ -4,3 +4,7 @@ body {
 .section h2 {
   border-bottom: solid 1px #CCC;
 }
+
+.form-horizontal .control-label.text-left{
+    text-align: left;
+}
