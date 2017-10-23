@@ -6,33 +6,37 @@ from bottle import request, post
 import argparse
 import sys
 
+from apiutil import require_fields
+
 from models import before_request_handler, after_request_handler
 from models import initialize
+
+from detector import Detector
+
 
 import logging
 log = logging.getLogger()
 
 
-@hook('before_request')
-def before_request():
-    before_request_handler()
-
-
-@hook('after_request')
-def after_request():
-    after_request_handler()
-
-
 # POST /detector
 @post('/detector')
+@require_fields(["uuid", "status_dictionary"])
 def post_detector():
     body = request.json
+    detector = Detector(body["uuid"])
+    return detector.checkin(status_dictionary=body["status_dictionary"])
 
 
 # POST /rssi
 @post('/signal')
+@require_fields(["detector_uuid", "beacon_uuid", "rssi"])
 def post_signal():
     body = request.json
+
+    rssi_processed = body["rssi_processed"] if "rssi_processed" in body else None
+
+    detector = Detector(body["detector"])
+    return detector.add_signal(body["beacon_uuid"], body["rssi"], rssi_processed=rssi_processed)
 
 
 # GET /beacon
