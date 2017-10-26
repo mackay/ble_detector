@@ -60,5 +60,5 @@ class Signal(BaseModel):
 
 def initialize():
     database.connect()
-    database.create_tables([ Detector ], safe=True)
+    database.create_tables([ Detector, Beacon, Signal ], safe=True)
     database.close()

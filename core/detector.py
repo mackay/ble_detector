@@ -13,11 +13,15 @@ class DetectorProcess(EntityProcess):
 
 
     def add_signal(self, beacon_uuid, rssi, source_data=None):
+        self.checkin()
+
         beacon_process = BeaconProcess(beacon_uuid)
         beacon = beacon_process.checkin()
 
         #add to DB
-        Signal.create(detector=self.get(), beacon=beacon, rssi=rssi, source_data=source_data)
+        signal = Signal.create(detector=self.get(), beacon=beacon, rssi=rssi, source_data=source_data)
 
         #add to redis
         pass
+
+        return signal

@@ -7,7 +7,7 @@ from bottle import view
 import argparse
 import sys
 
-from core.apiutil import require_fields
+from core.apiutil import require_fields, serialize_json
 
 from core.models import before_request_handler, after_request_handler
 from core.models import initialize
@@ -32,15 +32,19 @@ def after_request():
 # POST /detector
 @post('/detector')
 @require_fields(["uuid"])
+@serialize_json()
 def post_detector():
     body = request.json
     detector_process = DetectorProcess(body["uuid"])
-    return detector_process.checkin(status_dictionary=body["status_dictionary"])
+    status_dictionary = body["status_dictionary"] if "status_dictionary" in body else None
+
+    return detector_process.checkin(status_dictionary=status_dictionary)
 
 
 # POST /rssi
 @post('/signal')
 @require_fields(["detector_uuid", "beacon_uuid", "rssi"])
+@serialize_json()
 def post_signal():
     body = request.json
 
