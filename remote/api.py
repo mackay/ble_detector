@@ -10,15 +10,16 @@ class API(object):
         self.base_url = base_url
 
     def checkin_detector(self, uuid):
-        pass
+        url = self.base_url + "/detector"
+        payload = {'uuid': uuid}
+
+        requests.post(url, data=json.dumps(payload))
 
     def send_detector_signal(self, detector_uuid, signal_uuid, rssi, data=None):
-        pass
+        url = self.base_url + "/signal"
 
+        payload = { 'detector_uuid': detector_uuid,
+                    'signal_uuid': signal_uuid,
+                    'rssi': rssi }
 
-
-#     def post_discovery(self, rssi, source_data):
-#         url = self.server + "/"
-# >>> payload = {'some': 'data'}
-
-# >>> r = requests.post(url, data=json.dumps(payload))
+        requests.post(url, data=json.dumps(payload))

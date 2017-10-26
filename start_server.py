@@ -31,7 +31,7 @@ def after_request():
 
 # POST /detector
 @post('/detector')
-@require_fields(["uuid", "status_dictionary"])
+@require_fields(["uuid"])
 def post_detector():
     body = request.json
     detector_process = DetectorProcess(body["uuid"])
