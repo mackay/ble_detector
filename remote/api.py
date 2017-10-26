@@ -13,13 +13,13 @@ class API(object):
         url = self.base_url + "/detector"
         payload = {'uuid': uuid}
 
-        requests.post(url, data=json.dumps(payload))
+        requests.post(url, json=payload)
 
-    def send_detector_signal(self, detector_uuid, signal_uuid, rssi, data=None):
+    def send_detector_signal(self, detector_uuid, beacon_uuid, rssi, data=None):
         url = self.base_url + "/signal"
 
         payload = { 'detector_uuid': detector_uuid,
-                    'signal_uuid': signal_uuid,
+                    'beacon_uuid': beacon_uuid,
                     'rssi': rssi }
 
-        requests.post(url, data=json.dumps(payload))
+        requests.post(url, json=payload)
