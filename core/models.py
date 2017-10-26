@@ -33,8 +33,8 @@ class BaseModel(Model):
         base_uri = "unknown"
 
 
-class Detector(BaseModel):
-    uuid = CharField(max_length=64, unique=True)
+class ActiveEntity(BaseModel):
+    uuid = CharField(max_length=64, unique=True, index=True)
     last_active = DateTimeField(null=True)
     total_packets = IntegerField(default=0)
     metadata = JSONField(null=True)
@@ -43,7 +43,22 @@ class Detector(BaseModel):
         order_by = ('uuid', )
 
 
+class Detector(ActiveEntity):
+    pass
+
+
+class Beacon(ActiveEntity):
+    pass
+
+
+class Signal(BaseModel):
+    detector = ForeignKeyField(rel_model=Detector)
+    beacon = ForeignKeyField(rel_model=Beacon)
+    rssi = FloatField()
+    source_data = CharField(max_length=255, null=True)
+
+
 def initialize():
     database.connect()
-    databse.create_tables([ Detector ], safe=True)
-    database.disconnect()
+    database.create_tables([ Detector ], safe=True)
+    database.close()

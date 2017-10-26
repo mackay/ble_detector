@@ -1,21 +1,32 @@
 #!/usr/bin/env python
-from bottle import run, static_file, route, view
-from bottle import hook
+import bottle
+from bottle import run, static_file, route, hook
 from bottle import request, post
+from bottle import view
 
 import argparse
 import sys
 
-from apiutil import require_fields
+from core.apiutil import require_fields
 
-from models import before_request_handler, after_request_handler
-from models import initialize
+from core.models import before_request_handler, after_request_handler
+from core.models import initialize
 
-from detector import Detector
+from core.detector import DetectorProcess
 
 
 import logging
 log = logging.getLogger()
+
+
+@hook('before_request')
+def before_request():
+    before_request_handler()
+
+
+@hook('after_request')
+def after_request():
+    after_request_handler()
 
 
 # POST /detector
@@ -23,8 +34,8 @@ log = logging.getLogger()
 @require_fields(["uuid", "status_dictionary"])
 def post_detector():
     body = request.json
-    detector = Detector(body["uuid"])
-    return detector.checkin(status_dictionary=body["status_dictionary"])
+    detector_process = DetectorProcess(body["uuid"])
+    return detector_process.checkin(status_dictionary=body["status_dictionary"])
 
 
 # POST /rssi
@@ -33,10 +44,10 @@ def post_detector():
 def post_signal():
     body = request.json
 
-    rssi_processed = body["rssi_processed"] if "rssi_processed" in body else None
+    source_data = body["source_data"] if "source_data" in body else None
 
-    detector = Detector(body["detector"])
-    return detector.add_signal(body["beacon_uuid"], body["rssi"], rssi_processed=rssi_processed)
+    detector_process = DetectorProcess(body["detector_uuid"])
+    return detector_process.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
 # GET /beacon
@@ -55,7 +66,7 @@ def static_index():
 
 @route('/<filename:path>')
 def all_static(filename):
-    return static_file(filename, root='./static')
+    return static_file(filename, root='./server/static')
 
 
 def main():
@@ -71,6 +82,7 @@ def main():
     log.info("Starting Server")
 
     #start the WSGI app
+    bottle.TEMPLATE_PATH = [ "./server/views" ]
     run(host=arg.host, port=arg.port)
 
     log.info("Shutdown Server")
