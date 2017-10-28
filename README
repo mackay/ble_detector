@@ -1,0 +1,12 @@
+
+
+
+# Raspberry Pi
+
+sudo python ./start_detector.py -l -1 -t 150 --uuid black --api http://192.168.25.66:8080/api
+sudo python ./start_detector.py -l -1 -t 150 --uuid blue --api http://192.168.25.66:8080/api
+sudo python ./start_detector.py -l -1 -t 150 --uuid green --api http://192.168.25.66:8080/api
+
+# Central Server
+
+python ./start_server.py --host 192.168.25.66 --port 8080

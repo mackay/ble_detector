@@ -19,5 +19,7 @@ class API(object):
         payload = { 'detector_uuid': detector_uuid,
                     'beacon_uuid': beacon_uuid,
                     'rssi': rssi }
-
-        requests.post(url, json=payload)
+        try:
+            requests.post(url, json=payload)
+        except:
+            print ("Failed to post to " + url)

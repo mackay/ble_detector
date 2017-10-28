@@ -45,3 +45,6 @@ class SystemBase(object):
 
     def is_mode_off(self):
         return self.is_mode(SystemBase.MODES.OFF)
+
+    def is_mode_training(self):
+        return self.is_mode(SystemBase.MODES.TRAINING)

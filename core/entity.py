@@ -31,3 +31,13 @@ class EntityAgent(Entity):
         entity.last_active = datetime.utcnow()
         entity.save()
         return entity
+
+    def increment_packet_count(self):
+        entity = self.get()
+        entity.total_packets += 1
+        entity.save()
+
+    def reset_packet_count(self):
+        entity = self.get()
+        entity.total_packets = 0
+        entity.save()
