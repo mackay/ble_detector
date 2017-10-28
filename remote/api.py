@@ -8,7 +8,7 @@ class API(object):
         self.base_url = base_url
         self.ignore_errors = ignore_errors
 
-    def checkin_detector(self, uuid, metadata={}):
+    def checkin_detector(self, uuid, metadata=None):
         url = self.base_url + "/detector"
         payload = {'uuid': uuid, 'metadata': metadata}
 

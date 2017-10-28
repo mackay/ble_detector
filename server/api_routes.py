@@ -51,14 +51,7 @@ def post_detector():
     body = request.json
     detector_agent = DetectorAgent(body["uuid"])
 
-    metadata = None
-    if "metadata" in body:
-        try:
-            metadata = json.reads(body["metadata"])
-        except:
-            log.error( "Failed to parse JSON metadata " + str(body["metadata"]) )
-            metadata = None
-
+    metadata = body["metadata"] if "metadata" in body else None
     return detector_agent.checkin(metadata=metadata)
 
 
