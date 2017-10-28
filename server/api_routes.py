@@ -21,7 +21,7 @@ def after_request():
 
 
 # POST /detector
-@post('/detector')
+@post('/detector', is_api=True)
 @require_fields(["uuid"])
 @serialize_json()
 def post_detector():
@@ -33,7 +33,7 @@ def post_detector():
 
 
 # POST /rssi
-@post('/signal')
+@post('/signal', is_api=True)
 @require_fields(["detector_uuid", "beacon_uuid", "rssi"])
 @serialize_json()
 def post_signal():
@@ -53,7 +53,7 @@ def post_signal():
 
 # DEL /training
 
-@post('/option')
+@post('/option', is_api=True)
 @require_fields(["key", "value"])
 @serialize_json()
 def post_mode():

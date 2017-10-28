@@ -7,6 +7,7 @@
     <title>BLE LED Project</title>
     <meta name="description" content="BLE LED Project">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/toastr.css?v=1.0">
     <link rel="stylesheet" href="css/styles.css?v=1.0">
 
 
@@ -62,6 +63,13 @@
                         <label for="training-data" class="text-left control-label col-sm-3">Training / Testing Data</label>
                         <div class="col-sm-9">
                             <input id="training-data" class="form-control" placeholder="Only Used In Training or Testing Mode">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="beacon-filter-data" class="text-left control-label col-sm-3">Beacon Filter</label>
+                        <div class="col-sm-9">
+                            <input id="beacon-filter-data" class="form-control" placeholder="Only Allow UUIDs With This String">
                         </div>
                     </div>
                 </fieldset>
@@ -170,7 +178,14 @@
     </div>
     <!-- /.container -->
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <script src="./js/underscore-min.js"></script>
+    <script src="./js/extend.js"></script>
+    <script src="./js/toastr.min.js"></script>
+    <script src="./js/my.class.min.js"></script>
+    <script src="./js/pinocchio.js"></script>
+    <script src="./js/scripts.js"></script>
 </body>
 </html>

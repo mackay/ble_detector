@@ -38,10 +38,9 @@ def main():
     pool_log.setLevel(logging.DEBUG)
     pool_log.info("Log 'peewee.pool' initialized at level {0}".format( pool_log.getEffectiveLevel() ))
 
-    #dump the routes
-    #munge routes to add /api to everything
+    #print the routes and adjust routing if necessary
     for existing_route in app().routes:
-        if not existing_route.rule.startswith("/api"):
+        if existing_route.config.is_api:
             route("/api" + existing_route.rule, method=existing_route.method, callback=existing_route.call)
         else:
             log.info( existing_route.method + "\t" + existing_route.rule )
