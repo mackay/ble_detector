@@ -10,7 +10,7 @@ import json
 class TrainingDetectorAgent(DetectorAgent):
 
     def __init__(self, uuid):
-        super(TrainingDetectorAgent, self).__init__(uuid, Detector)
+        super(TrainingDetectorAgent, self).__init__(uuid)
 
     def get_training_expectation(self):
         return json.loads( self.get_option(SystemBase.TRAINING_KEY) )

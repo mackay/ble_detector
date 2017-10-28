@@ -8,6 +8,7 @@ from core.models import database
 
 from core.system import SystemBase
 from core.detector import DetectorAgent
+from core.beacon import BeaconAgent
 from core.training import TrainingNetwork, TrainingDetectorAgent
 
 
@@ -70,13 +71,6 @@ def post_signal():
 
 # POST /training
 
-# DEL /training
-@delete('/training', is_api=True)
-@serialize_json()
-def delete_training():
-    return { "signals_deleted": TrainingNetwork().clear_training() }
-
-
 @post('/option', is_api=True)
 @require_fields(["key", "value"])
 @serialize_json()
@@ -89,3 +83,30 @@ def post_option():
 @serialize_json()
 def get_option():
     return SystemBase().get_options()
+
+
+
+
+# DEL /training
+@delete('/training', is_api=True)
+@serialize_json()
+def delete_training():
+    return { "deleted": TrainingNetwork().clear_training() }
+
+
+@delete('/signal', is_api=True)
+@serialize_json()
+def delete_signal():
+    return { "deleted": DetectorAgent(None).clear_signals() }
+
+
+@delete('/detector', is_api=True)
+@serialize_json()
+def delete_detector():
+    return { "deleted": DetectorAgent(None).clear_entities() }
+
+
+@delete('/beacon', is_api=True)
+@serialize_json()
+def delete_beacon():
+    return { "deleted": BeaconAgent(None).clear_entities() }

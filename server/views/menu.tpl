@@ -43,7 +43,7 @@
 
     <div class="container">
         <div class="section">
-            <h2>Mode</h2>
+            <h2>Operation</h2>
             <form class="form form-horizontal" accept-charset="UTF-8" role="form">
                 <fieldset>
                     <div class="form-group">
@@ -74,7 +74,6 @@
                     </div>
                 </fieldset>
             </form>
-
         </div>
         <div class="section">
             <h2>Beacons</h2>
@@ -173,8 +172,14 @@
                     </tr>
                 </tbody>
             </table>
-
         </div>
+
+        <div class="section reset">
+            <h2>Reset</h2>
+            <div class="btn btn-danger" resource="training">Delete Training Data</div>
+            <div class="btn btn-danger" resource="signal">Delete Signal Data</div>
+            <div class="btn btn-danger" resource="beacon">Delete Beacon Data</div>
+            <div class="btn btn-danger" resource="detector">Delete Detector Data</div>
     </div>
     <!-- /.container -->
 

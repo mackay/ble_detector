@@ -26,3 +26,6 @@ class DetectorAgent(EntityAgent):
         pass
 
         return signal
+
+    def clear_signals(self):
+        return Signal.delete().execute()

@@ -41,3 +41,6 @@ class EntityAgent(Entity):
         entity = self.get()
         entity.total_packets = 0
         entity.save()
+
+    def clear_entities(self):
+        return self.entity_model_cls.delete().execute()

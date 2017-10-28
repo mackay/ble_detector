@@ -1,5 +1,6 @@
 body {
   padding-top: 5rem;
+  padding-bottom: 5rem;
 }
 .section h2 {
   border-bottom: solid 1px #CCC;
@@ -8,3 +9,4 @@ body {
 .form-horizontal .control-label.text-left{
     text-align: left;
 }
+

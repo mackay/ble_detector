@@ -1,3 +1,20 @@
+/**
+ * Sprintf like function
+ * @source http://stackoverflow.com/a/4795914/805649
+ * @return String
+ */
+String.prototype.format = function() {
+    "use strict";
+
+    var formatted = this;
+    for (var prop in arguments[0]) {
+        if (arguments[0].hasOwnProperty(prop)) {
+            var regexp = new RegExp("\\{" + prop + "\\}", "gi");
+            formatted = formatted.replace(regexp, arguments[0][prop]);
+        }
+    }
+    return formatted;
+};
 
 
 API = my.Class(pinocchio.Service, {
@@ -23,7 +40,7 @@ ConfigManager = my.Class({
         this.api = api;
     },
 
-    add_hooks: function() {
+    add_operation_hooks: function() {
         var manager = this;
 
         $("#mode").change(function(){
@@ -45,6 +62,19 @@ ConfigManager = my.Class({
         });
     },
 
+    add_reset_hooks: function() {
+        var manager = this;
+
+        $(".reset .btn").click(function() {
+            var target_resource = "/" + $(this).attr("resource");
+            manager.api.del(target_resource, "", function(data) {
+                toastr.success("Deleted {deleted} of resource type {resource}".format({
+                    "deleted": data.deleted || 0,
+                    "resource": target_resource }));
+            }, manager.api._general_failure);
+        });
+    },
+
     load: function() {
         this.api.get_options(function(data) {
             $("#mode option[value='" + data["mode"] + "']").prop("selected", true);
@@ -60,6 +90,8 @@ $(function(){
     environment.service = new API("./api");
     environment.config = new ConfigManager( environment.service );
 
-    environment.config.add_hooks();
+    environment.config.add_operation_hooks();
+    environment.config.add_reset_hooks();
+
     environment.config.load();
 });
