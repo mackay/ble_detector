@@ -36,11 +36,14 @@ class TrainingDetectorAgent(DetectorAgent):
 
 
 class TrainingNetwork(object):
+
+    @classmethod
+    def clear_training(cls):
+        return TrainingSignal.delete().execute()
+
     def __init__(self):
         pass
 
-    def clear_training(self):
-        return TrainingSignal.delete().execute()
 
     def build_network(self):
         pass

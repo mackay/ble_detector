@@ -98,22 +98,22 @@ def get_beacon():
 @delete('/training', is_api=True)
 @serialize_json()
 def delete_training():
-    return { "deleted": TrainingNetwork().clear_training() }
+    return { "deleted": TrainingNetwork.clear_training() }
 
 
 @delete('/signal', is_api=True)
 @serialize_json()
 def delete_signal():
-    return { "deleted": DetectorAgent(None).clear_signals() }
+    return { "deleted": DetectorAgent.clear_signals() }
 
 
 @delete('/detector', is_api=True)
 @serialize_json()
 def delete_detector():
-    return { "deleted": DetectorAgent(None).clear_entities() }
+    return { "deleted": DetectorAgent.clear_entities() }
 
 
 @delete('/beacon', is_api=True)
 @serialize_json()
 def delete_beacon():
-    return { "deleted": BeaconAgent(None).clear_entities() }
+    return { "deleted": BeaconAgent.clear_entities() }

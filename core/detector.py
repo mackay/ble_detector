@@ -9,6 +9,10 @@ class DetectorAgent(EntityAgent):
 
     EntityClass = Detector
 
+    @classmethod
+    def clear_signals(cls):
+        return Signal.delete().execute()
+
     def __init__(self, uuid):
         super(DetectorAgent, self).__init__(uuid)
 
@@ -27,6 +31,3 @@ class DetectorAgent(EntityAgent):
         pass
 
         return signal
-
-    def clear_signals(self):
-        return Signal.delete().execute()
