@@ -53,7 +53,7 @@
                                 <option value="off">Off</option>
                                 <option value="run">Run</option>
                                 <option value="training">Training (Beacons)</option>
-                                <option value="training">Testing (Actors)</option>
+                                <option value="testing">Testing (Actors)</option>
                                 <option value="demo">Demo</option>
                             </select>
                         </div>
