@@ -1,15 +1,22 @@
 from datetime import datetime
+from core.system import SystemBase
 
 
-class EntityProcess(object):
+class Entity(SystemBase):
 
     def __init__(self, uuid, entity_model_cls):
+        super(Entity, self).__init__()
         self.uuid = uuid
         self.entity_model_cls = entity_model_cls
 
-
     def get(self):
         return self.entity_model_cls.get(self.entity_model_cls.uuid == self.uuid)
+
+
+class EntityAgent(Entity):
+
+    def __init__(self, uuid, entity_model_cls):
+        super(EntityAgent, self).__init__(uuid, entity_model_cls)
 
     def checkin(self, status_dictionary=None):
         query = self.entity_model_cls.select().where(self.entity_model_cls.uuid == self.uuid)

@@ -2,7 +2,8 @@ from bottle import hook
 from bottle import request, post
 
 from core.apiutil import require_fields, serialize_json
-from core.detector import DetectorProcess
+from core.detector import DetectorAgent
+from core.system import SystemBase
 from core.models import database, SystemOption
 
 
@@ -26,10 +27,10 @@ def after_request():
 @serialize_json()
 def post_detector():
     body = request.json
-    detector_process = DetectorProcess(body["uuid"])
+    detector_agent = DetectorAgent(body["uuid"])
     status_dictionary = body["status_dictionary"] if "status_dictionary" in body else None
 
-    return detector_process.checkin(status_dictionary=status_dictionary)
+    return detector_agent.checkin(status_dictionary=status_dictionary)
 
 
 # POST /rssi
@@ -41,8 +42,8 @@ def post_signal():
 
     source_data = body["source_data"] if "source_data" in body else None
 
-    detector_process = DetectorProcess(body["detector_uuid"])
-    return detector_process.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
+    detector_agent = DetectorAgent(body["detector_uuid"])
+    return detector_agent.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
 # GET /beacon
@@ -58,14 +59,4 @@ def post_signal():
 @serialize_json()
 def post_mode():
     body = request.json
-
-    try:
-        system_option = SystemOption.get(SystemOption.key == body["key"])
-    except:
-        system_option = SystemOption()
-
-    system_option.value = body["value"]
-    system_option.key = body["key"]
-    system_option.save()
-
-    return system_option
+    return SystemBase().set_option(body["key"], body["value"])

@@ -1,9 +1,9 @@
 
 from core.models import Beacon
-from core.entity import EntityProcess
+from core.entity import EntityAgent
 
 
-class BeaconProcess(EntityProcess):
+class BeaconAgent(EntityAgent):
 
     def __init__(self, uuid):
-        super(BeaconProcess, self).__init__(uuid, Beacon)
+        super(BeaconAgent, self).__init__(uuid, Beacon)
