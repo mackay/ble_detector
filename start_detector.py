@@ -37,7 +37,7 @@ def scan_loop(arg):
     transport = None
     if arg.api:
         try:
-            API(arg.api).checkin_detector(arg.uuid)
+            checkin(API(arg.api), arg.uuid)
             transport = API(arg.api, ignore_errors=True)
         except:
             transport = None
