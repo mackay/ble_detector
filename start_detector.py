@@ -20,13 +20,14 @@ def to_fixed_decimal(number):
 
 
 def checkin(transport, uuid):
-    load = os.getloadavg()
+    source_load = os.getloadavg()
+    load = [0] * len(source_load)
 
-    for i in range(len(load)):
-        load[i] = to_fixed_decimal(load[i])
+    for i in range(len(source_load)):
+        load[i] = to_fixed_decimal(source_load[i])
 
     meta = {
-        "load": "{0} {1} {2}".format(load)
+        "load": "{0} {1} {2}".format(*load)
     }
 
     transport.checkin_detector(uuid, metadata=meta)
