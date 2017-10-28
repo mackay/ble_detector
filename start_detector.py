@@ -48,7 +48,7 @@ def scan_loop(arg):
     loop_label = str(arg.loops) if arg.loops else "continuous"
     print (ANSI_RED + "Scanning for devices... (%s loops)" % (loop_label) + ANSI_OFF)
 
-    checkin = CHECKIN_LOOPS
+    checkin_counter = CHECKIN_LOOPS
 
     keep_looping = True
     while keep_looping:
@@ -59,9 +59,9 @@ def scan_loop(arg):
         if arg.loops == 0:
             keep_looping = False
 
-        checkin -= 1
-        if checkin <= 0:
-            checkin = CHECKIN_LOOPS
+        checkin_counter -= 1
+        if checkin_counter <= 0:
+            checkin_counter = CHECKIN_LOOPS
             if transport:
                 checkin(transport, arg.uuid)
 
