@@ -15,8 +15,16 @@ class Entity(SystemBase):
 
 class EntityAgent(Entity):
 
-    def __init__(self, uuid, entity_model_cls):
+    EntityClass = None
+
+    def __init__(self, uuid, entity_model_cls=None):
+        entity_model_cls = entity_model_cls or self.EntityClass
+
         super(EntityAgent, self).__init__(uuid, entity_model_cls)
+
+    @classmethod
+    def get_all(cls):
+        return [ entity for entity in cls.EntityClass.select() ]
 
     def checkin(self, status_dictionary=None):
         query = self.entity_model_cls.select().where(self.entity_model_cls.uuid == self.uuid)

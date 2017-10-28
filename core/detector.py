@@ -7,9 +7,10 @@ from core.beacon import BeaconAgent
 
 class DetectorAgent(EntityAgent):
 
-    def __init__(self, uuid):
-        super(DetectorAgent, self).__init__(uuid, Detector)
+    EntityClass = Detector
 
+    def __init__(self, uuid):
+        super(DetectorAgent, self).__init__(uuid)
 
     def add_signal(self, beacon_uuid, rssi, source_data=None):
         self.checkin()

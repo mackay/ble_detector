@@ -26,7 +26,23 @@ def after_request():
     database.close()
 
 
-# POST /detector
+
+# System configuration
+@post('/option', is_api=True)
+@require_fields(["key", "value"])
+@serialize_json()
+def post_option():
+    body = request.json
+    return SystemBase().set_option(body["key"], body["value"])
+
+
+@get('/option', is_api=True)
+@serialize_json()
+def get_option():
+    return SystemBase().get_options()
+
+
+# detectors and detector signals
 @post('/detector', is_api=True)
 @require_fields(["uuid"])
 @serialize_json()
@@ -65,29 +81,19 @@ def post_signal():
     return detector_agent.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
-# GET /beacon
-
-# GET /beacon/<addr>
-
-# POST /training
-
-@post('/option', is_api=True)
-@require_fields(["key", "value"])
+@get('/detector', is_api=True)
 @serialize_json()
-def post_option():
-    body = request.json
-    return SystemBase().set_option(body["key"], body["value"])
+def get_detector():
+    return DetectorAgent.get_all()
 
 
-@get('/option', is_api=True)
+@get('/beacon', is_api=True)
 @serialize_json()
-def get_option():
-    return SystemBase().get_options()
+def get_beacon():
+    return BeaconAgent.get_all()
 
 
-
-
-# DEL /training
+# DELETE Resources
 @delete('/training', is_api=True)
 @serialize_json()
 def delete_training():

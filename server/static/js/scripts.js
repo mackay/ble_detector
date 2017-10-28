@@ -16,6 +16,9 @@ String.prototype.format = function() {
     return formatted;
 };
 
+format_datetime = function(utc_date_string) {
+    return moment.utc(utc_date_string).local().format("YYYY-MM-DD HH:mm:ss");
+};
 
 API = my.Class(pinocchio.Service, {
     constructor: function(base_url) {
@@ -31,6 +34,13 @@ API = my.Class(pinocchio.Service, {
     },
     get_options: function(callback) {
         this.get("/option", "", callback, this._general_failure);
+    },
+
+    get_beacons: function(callback) {
+        this.get("/beacon", "", callback, this._general_failure);
+    },
+    get_detectors: function(callback) {
+        this.get("/detector", "", callback, this._general_failure);
     }
 });
 
@@ -38,6 +48,11 @@ API = my.Class(pinocchio.Service, {
 ConfigManager = my.Class({
     constructor: function(api) {
         this.api = api;
+
+        this.add_operation_hooks();
+        this.add_reset_hooks();
+
+        this.load();
     },
 
     add_operation_hooks: function() {
@@ -84,14 +99,83 @@ ConfigManager = my.Class({
     }
 });
 
+ViewManager = my.Class({
+
+    constructor: function(api) {
+        this.api = api;
+
+        this.add_hooks();
+        this.add_timer();
+
+        this.load();
+    },
+
+    add_hooks: function() {
+    },
+
+    add_timer: function() {
+        var manager = this;
+        this.interval = setInterval(function() {
+            manager.load();
+        }, 5000);
+    },
+
+    load: function() {
+        this.load_beacons();
+        this.load_detectors();
+    },
+
+    load_beacons: function() {
+        this.api.get_beacons(function(list) {
+            var $tbody = $(".section.beacon table tbody");
+
+            var template = _.template(
+                    "<tr>" +
+                    "    <td><%- uuid %></td>" +
+                    "    <td><%- last_active %></td>" +
+                    "    <td><%- total_packets %></td>" +
+                    "</tr>");
+
+            $tbody.empty();
+            _.each(list, function(item) {
+                item.last_active = format_datetime(item.last_active);
+                $tbody.append(template(item));
+            });
+        });
+    },
+
+    load_detectors: function() {
+        this.api.get_detectors(function(list) {
+            var $tbody = $(".section.detector table tbody");
+
+            var template = _.template(
+                    "<tr>" +
+                    "    <td><%- uuid %></td>" +
+                    "    <td><%- load %></td>" +
+                    "    <td><%- last_active %></td>" +
+                    "    <td><%- total_packets %></td>" +
+                    "</tr>");
+
+            $tbody.empty();
+            _.each(list, function(item) {
+                item.load = "unknown";
+                if( item.metadata && item.metadata.load ) {
+                    item.load = item.metadata.load;
+                }
+
+                item.last_active = format_datetime(item.last_active);
+                $tbody.append(template(item));
+            });
+        });
+    }
+});
+
 environment = { };
 
 $(function(){
     environment.service = new API("./api");
     environment.config = new ConfigManager( environment.service );
 
-    environment.config.add_operation_hooks();
-    environment.config.add_reset_hooks();
 
-    environment.config.load();
+    environment.view = new ViewManager( environment.service );
 });

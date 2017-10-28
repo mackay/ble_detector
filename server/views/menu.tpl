@@ -75,41 +75,21 @@
                 </fieldset>
             </form>
         </div>
-        <div class="section">
+        <div class="section beacon">
             <h2>Beacons</h2>
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-5">ID</th>
-                        <th class="col-sm-3">RSSI</th>
+                        <th class="col-sm-8">ID</th>
                         <th class="col-sm-3">Last Heard</th>
                         <th class="col-sm-3">Packets</th>
                     </tr>
                 </thead>
 
-                <tbody>
-                    <tr>
-                        <td>90eb2126-e9ae-46ba-8d1c-8fad60a760d1</td>
-                        <td>-52</td>
-                        <td>2017-10-12 12:33:04</td>
-                        <td>351</td>
-                    </tr>
-                    <tr>
-                        <td>303f7849-75a8-4e1e-8f63-3eaa7fc4ca1c</td>
-                        <td>-66</td>
-                        <td>2017-10-12 12:32:34</td>
-                        <td>12</td>
-                    </tr>
-                    <tr>
-                        <td>b64b1bce-ebea-42f9-a1dd-3acd66877793</td>
-                        <td>-23</td>
-                        <td>2017-10-12 12:31:45</td>
-                        <td>15235</td>
-                    </tr>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
-        <div class="section">
+        <div class="section detector">
             <h2>Detectors</h2>
 
             <table class="table">
@@ -122,26 +102,7 @@
                     </tr>
                 </thead>
 
-                <tbody>
-                    <tr>
-                        <td>Green</td>
-                        <td>0.12 0.11 0.04</td>
-                        <td>2017-10-12 12:33:04</td>
-                        <td>3958</td>
-                    </tr>
-                    <tr>
-                        <td>Blue</td>
-                        <td>0.44 0.33 0.30</td>
-                        <td>2017-10-12 12:32:34</td>
-                        <td>3484</td>
-                    </tr>
-                    <tr>
-                        <td>Black</td>
-                        <td>0.10 0.10 0.10</td>
-                        <td>2017-10-12 12:31:45</td>
-                        <td>599</td>
-                    </tr>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
         <div class="section">
@@ -191,6 +152,7 @@
     <script src="./js/toastr.min.js"></script>
     <script src="./js/my.class.min.js"></script>
     <script src="./js/pinocchio.js"></script>
+    <script src="./js/moment.min.js"></script>
     <script src="./js/scripts.js"></script>
 </body>
 </html>
