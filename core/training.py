@@ -17,9 +17,11 @@ class TrainingDetectorAgent(DetectorAgent):
 
     def add_signal(self, beacon_uuid, rssi, expected_output=None, source_data=None):
         self.checkin()
+        self.increment_packet_count()
 
         beacon_agent = BeaconAgent(beacon_uuid)
         beacon = beacon_agent.checkin()
+        beacon_agent.increment_packet_count()
 
         expected_output = expected_output or self.get_training_expectation()
 

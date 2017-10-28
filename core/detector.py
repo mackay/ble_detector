@@ -14,14 +14,14 @@ class DetectorAgent(EntityAgent):
 
     def add_signal(self, beacon_uuid, rssi, source_data=None):
         self.checkin()
+        self.increment_packet_count()
 
         beacon_agent = BeaconAgent(beacon_uuid)
         beacon = beacon_agent.checkin()
-        beacon.increment_packet_count()
+        beacon_agent.increment_packet_count()
 
         #add to DB
         signal = Signal.create(detector=self.get(), beacon=beacon, rssi=rssi, source_data=source_data)
-        self.increment_packet_count()
 
         #add to redis
         pass

@@ -37,9 +37,7 @@ class EntityAgent(Entity):
 
         #update DB data
         entity.last_active = datetime.utcnow()
-
         entity.metadata = metadata or entity.metadata
-
         entity.save()
         return entity
 
