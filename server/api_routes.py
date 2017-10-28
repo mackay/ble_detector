@@ -1,10 +1,14 @@
 from bottle import hook
-from bottle import request, post
+from bottle import abort
+from bottle import request, post, delete, get
 
 from core.apiutil import require_fields, serialize_json
-from core.detector import DetectorAgent
+
+from core.models import database
+
 from core.system import SystemBase
-from core.models import database, SystemOption
+from core.detector import DetectorAgent
+from core.training import TrainingNetwork, TrainingDetectorAgent
 
 
 import logging
@@ -39,10 +43,24 @@ def post_detector():
 @serialize_json()
 def post_signal():
     body = request.json
-
     source_data = body["source_data"] if "source_data" in body else None
 
-    detector_agent = DetectorAgent(body["detector_uuid"])
+    #if we're off, don't accept anything
+    if SystemBase().is_mode_off():
+        abort(503, "Signal posting not allowed when system is in 'off' mode")
+
+    #if we don't fit the filter, dump the signal
+    beacon_filter = SystemBase().get_option(SystemBase.FILTER_KEY)
+    if beacon_filter and beacon_filter not in body["beacon_uuid"]:
+        abort(409, "Beacon UUID {uuid} not acceptable to current server filter: {filter}".format(
+            uuid=body["beacon_uuid"],
+            filter=beacon_filter))
+
+    if SystemBase().is_mode_training():
+        detector_agent = TrainingDetectorAgent(body["detector_uuid"])
+    else:
+        detector_agent = DetectorAgent(body["detector_uuid"])
+
     return detector_agent.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
@@ -53,10 +71,21 @@ def post_signal():
 # POST /training
 
 # DEL /training
+@delete('/training', is_api=True)
+@serialize_json()
+def delete_training():
+    return { "signals_deleted": TrainingNetwork().clear_training() }
+
 
 @post('/option', is_api=True)
 @require_fields(["key", "value"])
 @serialize_json()
-def post_mode():
+def post_option():
     body = request.json
     return SystemBase().set_option(body["key"], body["value"])
+
+
+@get('/option', is_api=True)
+@serialize_json()
+def get_option():
+    return SystemBase().get_options()

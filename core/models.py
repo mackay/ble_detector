@@ -1,4 +1,6 @@
 from peewee import *
+import json
+
 
 database = SqliteDatabase('detector.db')
 
@@ -55,8 +57,15 @@ class Signal(BaseModel):
     source_data = CharField(max_length=255, null=True)
 
 
+class TrainingSignal(Signal):
+    expected_output = JSONField()
+
+
 def initialize():
     database.connect()
-    database.create_tables([ Detector, Beacon, Signal ], safe=True)
+
     database.create_tables([ SystemOption ], safe=True)
+    database.create_tables([ Detector, Beacon, Signal ], safe=True)
+    database.create_tables([ TrainingSignal ], safe=True)
+
     database.close()

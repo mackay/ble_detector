@@ -1,7 +1,5 @@
 
-
 import requests
-import json
 
 
 class API(object):

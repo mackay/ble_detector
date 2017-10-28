@@ -67,9 +67,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="beacon-filter-data" class="text-left control-label col-sm-3">Beacon Filter</label>
+                        <label for="filter-data" class="text-left control-label col-sm-3">Beacon Filter</label>
                         <div class="col-sm-9">
-                            <input id="beacon-filter-data" class="form-control" placeholder="Only Allow UUIDs With This String">
+                            <input id="filter-data" class="form-control" placeholder="Only Allow UUIDs With This String">
                         </div>
                     </div>
                 </fieldset>

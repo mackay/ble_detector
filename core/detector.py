@@ -1,6 +1,5 @@
 
 from core.models import Detector, Signal
-from datetime import datetime
 
 from core.entity import EntityAgent
 from core.beacon import BeaconAgent

@@ -11,6 +11,9 @@ API = my.Class(pinocchio.Service, {
 
     set_option: function(key, value, callback) {
         this.post("/option", "", JSON.stringify({"key": key, "value": value}), callback, this._general_failure);
+    },
+    get_options: function(callback) {
+        this.get("/option", "", callback, this._general_failure);
     }
 });
 
@@ -35,10 +38,18 @@ ConfigManager = my.Class({
             });
         });
 
-        $("#beacon-filter-data").change(function(){
+        $("#filter-data").change(function(){
             manager.api.set_option("filter-data", $(this).val(), function() {
                 toastr.success("Filter Set");
             });
+        });
+    },
+
+    load: function() {
+        this.api.get_options(function(data) {
+            $("#mode option[value='" + data["mode"] + "']").prop("selected", true);
+            $("#training-data").val(data["training-data"]);
+            $("#filter-data").val(data["filter-data"]);
         });
     }
 });
@@ -50,4 +61,5 @@ $(function(){
     environment.config = new ConfigManager( environment.service );
 
     environment.config.add_hooks();
+    environment.config.load();
 });

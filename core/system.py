@@ -13,6 +13,9 @@ class SystemBase(object):
         "DEMO": "demo"
     })
 
+    FILTER_KEY = "filter-data"
+    TRAINING_KEY = "training-data"
+
     def __init__(self):
         pass
 
@@ -27,6 +30,9 @@ class SystemBase(object):
         system_option.save()
 
         return system_option
+
+    def get_options(self):
+        return { option.key: option.value for option in SystemOption.select() }
 
     def get_option(self, key, default=None):
         try:
