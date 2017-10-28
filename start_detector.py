@@ -48,13 +48,12 @@ def main():
 
     transport = None
     if arg.api:
-        transport = API(arg.api)
-
-    try:
-        transport.checkin_detector(arg.uuid)
-    except:
-        transport = None
-        print ( "Failed to access URL " + str(arg.api) + " for detector checkin.  Removing transport layer." )
+        try:
+            API(arg.api).checkin_detector(arg.uuid)
+            transport = API(arg.api, ignore_errors=True)
+        except:
+            transport = None
+            print ( "Failed to access URL " + str(arg.api) + " for detector checkin.  Removing transport layer." )
 
     scanner = get_scanner(arg.uuid, transport=transport, interface=arg.hci, verbose=arg.verbose, opts=arg)
 
