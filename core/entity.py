@@ -26,7 +26,7 @@ class EntityAgent(Entity):
     def get_all(cls):
         return [ entity for entity in cls.EntityClass.select() ]
 
-    def checkin(self, status_dictionary=None):
+    def checkin(self, metadata=None):
         query = self.entity_model_cls.select().where(self.entity_model_cls.uuid == self.uuid)
 
         #if not in DB, create
@@ -37,6 +37,9 @@ class EntityAgent(Entity):
 
         #update DB data
         entity.last_active = datetime.utcnow()
+
+        entity.metadata = metadata or entity.metadata
+
         entity.save()
         return entity
 

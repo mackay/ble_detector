@@ -7,6 +7,7 @@ from __future__ import print_function
 import argparse
 import sys
 import uuid
+import os
 
 from remote.scan import get_scanner, ANSI_RED, ANSI_OFF
 from remote.api import API
@@ -14,38 +15,25 @@ from remote.api import API
 CHECKIN_LOOPS = 10
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--hci', action='store', type=int, default=0,
-                        help='Interface number for scan')
-    parser.add_argument('-t', '--timeout', action='store', type=int, default=150,
-                        help='Scan delay, 0 for continuous')
-    parser.add_argument('-l', '--loops', action='store', type=int, default=1,
-                        help='Scan repeat times, -1 for continuous')
-    parser.add_argument('-p', '--prefix', action='store', type=str, default=None,
-                        help='Filter to id prefxes of ...')
-    parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
-                        help='dBm value for filtering far devices')
-
-    parser.add_argument('--packets', action='store', type=int, default=5,
-                        help='Average RSSI values across this # of packets')
-    parser.add_argument('--reject', action='store', type=int, default=2,
-                        help='Reject # of the lowest RSSI valued packets')
-
-    parser.add_argument('-v', '--verbose', action='store_true',
-                        help='Increase output verbosity')
+def to_fixed_decimal(number):
+    return "{0:.2f}".format( float(number))
 
 
-    parser.add_argument('--uuid', type=str, default=None,
-                        help='Unique identifier for the detector')
-    parser.add_argument('--api', type=str, default=None,
-                        help='Base server API URL')
+def checkin(transport, uuid):
+    load = os.getloadavg()
 
-    arg = parser.parse_args(sys.argv[1:])
+    for i in range(len(load)):
+        load[i] = to_fixed_decimal(load[i])
 
-    if arg.uuid is None:
-        arg.uuid = str(uuid.uuid4())
+    meta = {
+        "load": "{0} {1} {2}".format(load)
+    }
 
+    transport.checkin_detector(uuid, metadata=meta)
+
+
+
+def scan_loop(arg):
     transport = None
     if arg.api:
         try:
@@ -75,7 +63,39 @@ def main():
         if checkin <= 0:
             checkin = CHECKIN_LOOPS
             if transport:
-                transport.checkin_detector(arg.uuid)
+                checkin(transport, arg.uuid)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--hci', action='store', type=int, default=0,
+                        help='Interface number for scan')
+    parser.add_argument('-t', '--timeout', action='store', type=int, default=150,
+                        help='Scan delay, 0 for continuous')
+    parser.add_argument('-l', '--loops', action='store', type=int, default=1,
+                        help='Scan repeat times, -1 for continuous')
+    parser.add_argument('-p', '--prefix', action='store', type=str, default=None,
+                        help='Filter to id prefxes of ...')
+    parser.add_argument('-s', '--sensitivity', action='store', type=int, default=-128,
+                        help='dBm value for filtering far devices')
+
+    parser.add_argument('--packets', action='store', type=int, default=5,
+                        help='Average RSSI values across this # of packets')
+    parser.add_argument('--reject', action='store', type=int, default=2,
+                        help='Reject # of the lowest RSSI valued packets')
+
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Increase output verbosity')
+
+
+    parser.add_argument('--uuid', type=str, default=uuid.uuid4(),
+                        help='Unique identifier for the detector')
+    parser.add_argument('--api', type=str, default=None,
+                        help='Base server API URL')
+
+    arg = parser.parse_args(sys.argv[1:])
+
+    scan_loop(arg)
 
 if __name__ == "__main__":
     main()

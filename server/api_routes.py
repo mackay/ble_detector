@@ -11,6 +11,7 @@ from core.detector import DetectorAgent
 from core.beacon import BeaconAgent
 from core.training import TrainingNetwork, TrainingDetectorAgent
 
+import json
 
 import logging
 log = logging.getLogger()
@@ -49,9 +50,16 @@ def get_option():
 def post_detector():
     body = request.json
     detector_agent = DetectorAgent(body["uuid"])
-    status_dictionary = body["status_dictionary"] if "status_dictionary" in body else None
 
-    return detector_agent.checkin(status_dictionary=status_dictionary)
+    metadata = None
+    if "metadata" in body:
+        try:
+            metadata = json.reads(body["metadata"])
+        except:
+            log.error( "Failed to parse JSON metadata " + str(body["metadata"]) )
+            metadata = None
+
+    return detector_agent.checkin(metadata=metadata)
 
 
 # POST /rssi

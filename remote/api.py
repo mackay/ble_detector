@@ -8,9 +8,9 @@ class API(object):
         self.base_url = base_url
         self.ignore_errors = ignore_errors
 
-    def checkin_detector(self, uuid):
+    def checkin_detector(self, uuid, metadata={}):
         url = self.base_url + "/detector"
-        payload = {'uuid': uuid}
+        payload = {'uuid': uuid, 'metadata': metadata}
 
         try:
             requests.post(url, json=payload)
