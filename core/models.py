@@ -3,14 +3,6 @@ from peewee import *
 database = SqliteDatabase('detector.db')
 
 
-def before_request_handler():
-    database.connect()
-
-
-def after_request_handler():
-    database.close()
-
-
 class JSONField(TextField):
     def db_value(self, value):
         if value is not None:
@@ -31,6 +23,11 @@ class BaseModel(Model):
     class Meta:
         database = database
         base_uri = "unknown"
+
+
+class SystemOption(BaseModel):
+    key = CharField(max_length=64, unique=True, index=True)
+    value = CharField(max_length=255)
 
 
 class ActiveEntity(BaseModel):

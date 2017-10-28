@@ -1,76 +1,18 @@
 #!/usr/bin/env python
 import bottle
-from bottle import run, static_file, route, hook
-from bottle import request, post
-from bottle import view
+from bottle import run, app, route
 
 import argparse
 import sys
 
-from core.apiutil import require_fields, serialize_json
-
-from core.models import before_request_handler, after_request_handler
 from core.models import initialize
 
-from core.detector import DetectorProcess
-
+from server.site_routes import *
+from server.api_routes import *
 
 import logging
 log = logging.getLogger()
 
-
-@hook('before_request')
-def before_request():
-    before_request_handler()
-
-
-@hook('after_request')
-def after_request():
-    after_request_handler()
-
-
-# POST /detector
-@post('/detector')
-@require_fields(["uuid"])
-@serialize_json()
-def post_detector():
-    body = request.json
-    detector_process = DetectorProcess(body["uuid"])
-    status_dictionary = body["status_dictionary"] if "status_dictionary" in body else None
-
-    return detector_process.checkin(status_dictionary=status_dictionary)
-
-
-# POST /rssi
-@post('/signal')
-@require_fields(["detector_uuid", "beacon_uuid", "rssi"])
-@serialize_json()
-def post_signal():
-    body = request.json
-
-    source_data = body["source_data"] if "source_data" in body else None
-
-    detector_process = DetectorProcess(body["detector_uuid"])
-    return detector_process.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
-
-
-# GET /beacon
-
-# GET /beacon/<addr>
-
-# POST /training
-
-# DEL /training
-
-@route('/')
-@view('menu')
-def static_index():
-    return dict()
-
-
-@route('/<filename:path>')
-def all_static(filename):
-    return static_file(filename, root='./server/static')
 
 
 def main():
@@ -83,7 +25,27 @@ def main():
     arg = parser.parse_args(sys.argv[1:])
 
     log.setLevel(logging.DEBUG)
+    logging.basicConfig(format="%(thread)d:%(asctime)s:%(levelname)s:%(module)s :: %(message)s")
+
     log.info("Starting Server")
+    log.info("Log 'general' initialized at level {0}".format( log.getEffectiveLevel() ))
+
+    p_logger = logging.getLogger('peewee')
+    p_logger.setLevel(logging.INFO)
+    p_logger.info("Log 'peewee' initialized at level {0}".format( p_logger.getEffectiveLevel() ))
+
+    pool_log = logging.getLogger("peewee.pool")
+    pool_log.setLevel(logging.DEBUG)
+    pool_log.info("Log 'peewee.pool' initialized at level {0}".format( pool_log.getEffectiveLevel() ))
+
+    #dump the routes
+    #munge routes to add /api to everything
+    for existing_route in app().routes:
+        if not existing_route.rule.startswith("/api"):
+            route("/api" + existing_route.rule, method=existing_route.method, callback=existing_route.call)
+        else:
+            log.info( existing_route.method + "\t" + existing_route.rule )
+
 
     #start the WSGI app
     bottle.TEMPLATE_PATH = [ "./server/views" ]
