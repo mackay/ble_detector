@@ -72,6 +72,15 @@
                             <input id="filter-data" class="form-control" placeholder="Only Allow UUIDs With This String">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-3 col-sm-9">
+                            <div class="checkbox">
+                                <label>
+                                    <input id="refresh" type="checkbox" checked> Automatic Refresh (5 seconds)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </fieldset>
             </form>
         </div>

@@ -41,6 +41,10 @@ API = my.Class(pinocchio.Service, {
     },
     get_detectors: function(callback) {
         this.get("/detector", "", callback, this._general_failure);
+    },
+
+    create_training_entry: function(beacon_uuid, expectation, callback) {
+        this.post("/training", "", JSON.stringify({"beacon_uuid": beacon_uuid, "expectation": expectation}), callback, this._general_failure);
     }
 });
 
@@ -116,7 +120,9 @@ ViewManager = my.Class({
     add_timer: function() {
         var manager = this;
         this.interval = setInterval(function() {
-            manager.load();
+            if( $("#refresh:checked").length > 0 ) {
+                manager.load();
+            }
         }, 5000);
     },
 
@@ -126,12 +132,13 @@ ViewManager = my.Class({
     },
 
     load_beacons: function() {
+        var manager = this;
         this.api.get_beacons(function(list) {
             var $tbody = $(".section.beacon table tbody");
 
             var template = _.template(
-                    "<tr>" +
-                    "    <td><%- uuid %></td>" +
+                    "<tr class='show-child-on-hover'>" +
+                    "    <td>(<%- id %>) <%- uuid %> <div class='btn btn-xs btn-info btn-train hover-child' beacon='<%- uuid %>'>Create Training Entry</div></td>" +
                     "    <td><%- last_active %></td>" +
                     "    <td><%- total_packets %></td>" +
                     "</tr>");
@@ -141,16 +148,53 @@ ViewManager = my.Class({
                 item.last_active = format_datetime(item.last_active);
                 $tbody.append(template(item));
             });
+
+            manager.add_beacon_hooks();
+        });
+    },
+    add_beacon_hooks: function() {
+        var manager = this;
+
+        $(".btn-train").click(function() {
+            var $btn = $(this);
+
+            //if the button is disabled, don't do anything
+            if($btn.hasClass("disabled")) {
+                return;
+            }
+
+            //if the button is not disabled, disable and set a re-enable timer
+            $btn.toggleClass("disabled", true);
+            var timeout = setTimeout(function() {
+                $btn.toggleClass("disabled", false);
+                timeout = null;
+            }, 1000);
+
+            var beacon_uuid = $(this).attr("beacon");
+            var expectation = JSON.parse( $("#training-data").val() );
+
+            manager.api.create_training_entry(beacon_uuid, expectation, function() {
+                toastr.success("Training entry created.");
+
+                //if the re-enable timer didn't hit, re-enable here
+                if(timeout) {
+                    $btn.toggleClass("disabled", false);
+                    clearTimeout(timeout);
+                    timeout = null;
+                }
+            });
         });
     },
 
     load_detectors: function() {
+        var manager = this;
+
         this.api.get_detectors(function(list) {
             var $tbody = $(".section.detector table tbody");
 
             var template = _.template(
                     "<tr>" +
-                    "    <td><%- uuid %></td>" +
+                    "    <td>(<%- id %>) <%- uuid %></td>" +
                     "    <td><%- load %></td>" +
                     "    <td><%- last_active %></td>" +
                     "    <td><%- total_packets %></td>" +
@@ -166,7 +210,12 @@ ViewManager = my.Class({
                 item.last_active = format_datetime(item.last_active);
                 $tbody.append(template(item));
             });
+
+            manager.add_detector_hooks();
         });
+    },
+    add_detector_hooks: function() {
+
     }
 });
 

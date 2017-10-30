@@ -9,7 +9,7 @@ from core.models import database
 from core.system import SystemBase
 from core.detector import DetectorAgent
 from core.beacon import BeaconAgent
-from core.training import TrainingNetwork, TrainingDetectorAgent
+from core.training import TrainingNetwork, TrainingAgent
 
 import json
 
@@ -74,11 +74,7 @@ def post_signal():
             uuid=body["beacon_uuid"],
             filter=beacon_filter))
 
-    if SystemBase().is_mode_training():
-        detector_agent = TrainingDetectorAgent(body["detector_uuid"])
-    else:
-        detector_agent = DetectorAgent(body["detector_uuid"])
-
+    detector_agent = DetectorAgent(body["detector_uuid"])
     return detector_agent.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
@@ -92,6 +88,36 @@ def get_detector():
 @serialize_json()
 def get_beacon():
     return BeaconAgent.get_all()
+
+
+@post('/training', is_api=True)
+@require_fields(["beacon_uuid"])
+@serialize_json()
+def post_training():
+    #get stale seconds parameter
+    stale_signal_limit = int( request.query.stale_signal_limit or str(10) )
+
+    #if beacon is involved get it from body
+    beacon_uuid = request.json["beacon_uuid"]
+    expectation = request.json["expectation"] or None
+
+    training_agent = TrainingAgent()
+    training = training_agent.add(beacon_uuid, expectation=expectation, stale_signal_limit=stale_signal_limit)
+
+    if training is None:
+        abort(404, "No available (non-stale) signals for training beacon.")
+
+    training._data["signals"] = training_agent.get_signals( training )
+    training._data["normalized"] = [ ]
+
+    normalized_signals = training_agent.normalize_signals( [ signal.rssi for signal in training._data["signals"] ] )
+    for idx, signal in enumerate( training._data["signals"] ):
+        training._data["normalized"].append({
+            "beacon": signal._data["beacon"],
+            "signal": normalized_signals[idx]
+        })
+
+    return training
 
 
 # DELETE Resources

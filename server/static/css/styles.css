@@ -2,11 +2,24 @@ body {
   padding-top: 5rem;
   padding-bottom: 5rem;
 }
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+	line-height: 1.75em;
+}
+
 .section h2 {
   border-bottom: solid 1px #CCC;
 }
 
 .form-horizontal .control-label.text-left{
     text-align: left;
+}
+
+.show-child-on-hover .hover-child {
+	display:none;
+}
+
+.show-child-on-hover:hover .hover-child {
+	display:inline-block;
 }
 

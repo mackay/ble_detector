@@ -1,6 +1,7 @@
 from peewee import *
-import json
 
+import json
+from datetime import datetime
 
 database = SqliteDatabase('detector.db')
 
@@ -51,14 +52,22 @@ class Beacon(ActiveEntity):
 
 
 class Signal(BaseModel):
+    date = DateTimeField(default=datetime.utcnow)
     detector = ForeignKeyField(rel_model=Detector)
     beacon = ForeignKeyField(rel_model=Beacon)
     rssi = FloatField()
     source_data = CharField(max_length=255, null=True)
 
 
-class TrainingSignal(Signal):
-    expected_output = JSONField()
+class Training(BaseModel):
+    date = DateTimeField(default=datetime.utcnow)
+    beacon = ForeignKeyField(rel_model=Beacon)
+    expectation = JSONField()
+
+
+class TrainingSignal(BaseModel):
+    training = ForeignKeyField(rel_model=Training, related_name='signals')
+    signal = ForeignKeyField(rel_model=Signal)
 
 
 def initialize():
@@ -66,6 +75,6 @@ def initialize():
 
     database.create_tables([ SystemOption ], safe=True)
     database.create_tables([ Detector, Beacon, Signal ], safe=True)
-    database.create_tables([ TrainingSignal ], safe=True)
+    database.create_tables([ Training, TrainingSignal ], safe=True)
 
     database.close()

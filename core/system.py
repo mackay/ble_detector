@@ -41,7 +41,7 @@ class SystemBase(object):
             return default
 
     def is_mode(self, mode):
-        return self.get_option(SystemBase.MODE_KEY) == mode
+        return self.get_option(SystemBase.MODE_KEY, default=SystemBase.MODES.OFF) == mode
 
     def is_mode_off(self):
         return self.is_mode(SystemBase.MODES.OFF)
