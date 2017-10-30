@@ -120,6 +120,11 @@ def post_training():
     return training
 
 
+@get('/training', is_api=True)
+def get_training():
+    return TrainingNetwork().get_training_csv()
+
+
 # DELETE Resources
 @delete('/training', is_api=True)
 @serialize_json()

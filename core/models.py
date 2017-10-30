@@ -64,6 +64,9 @@ class Training(BaseModel):
     beacon = ForeignKeyField(rel_model=Beacon)
     expectation = JSONField()
 
+    class Meta:
+        order_by = ('date', 'expectation', 'beacon')
+
 
 class TrainingSignal(BaseModel):
     training = ForeignKeyField(rel_model=Training, related_name='signals')
