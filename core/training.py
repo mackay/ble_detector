@@ -6,6 +6,8 @@ from core.models import Training, TrainingSignal
 from datetime import datetime, timedelta
 
 from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
 
 import json
 
@@ -180,7 +182,7 @@ class TrainingNetwork(object):
         output_set = [ _slice["expectation"]["location"] for _slice in training_slices ]
         self.network = MLPClassifier(solver='lbfgs',
                                      alpha=1e-5,
-                                     hidden_layer_sizes=(3),
+                                     hidden_layer_sizes=(10),
                                      random_state=1,
                                      max_iter=10000)
 
@@ -188,7 +190,25 @@ class TrainingNetwork(object):
             for idx, input_data in enumerate(input_set):
                 log.debug( str(training_slices[idx]["entry"].id) + " :: " + output_set[idx] + " :: " + str(input_data) )
 
+
         self.network.fit(input_set, output_set)
+
+        if log.getEffectiveLevel() <= logging.DEBUG:
+
+            alt_input_set, alt_input_test, alt_output_set, alt_output_test = train_test_split(input_set, output_set)
+            predictions = self.network.predict(alt_input_test)
+
+            log.debug("Sampled subset")
+            log.debug( "\n" + str(confusion_matrix(alt_output_test, predictions)) )
+            log.debug( "\n" + str(classification_report(alt_output_test, predictions)) )
+
+            predictions = self.network.predict(input_set)
+            log.debug("Full dataset")
+            log.debug( "\n" + str(confusion_matrix(output_set, predictions)) )
+            log.debug( "\n" + str(classification_report(output_set, predictions)) )
+
+
+
 
     def predict(self, signals, detector_sequence=None):
         detector_sequence = detector_sequence or self.get_detector_sequence()
