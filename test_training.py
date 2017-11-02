@@ -10,7 +10,7 @@ log = logging.getLogger()
 
 
 if __name__ == "__main__":
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
     logging.basicConfig(format="%(thread)d:%(asctime)s:%(levelname)s:%(module)s :: %(message)s")
 
     parser = argparse.ArgumentParser()
@@ -18,8 +18,13 @@ if __name__ == "__main__":
                         help='Signals in the format of rssi,rssi,...')
     parser.add_argument('-d', '--detectors', type=str,
                         help='Detectors in the format of uuid,uuid,...')
+    parser.add_argument('-v', action="store_true", dest="verbose", default=False,
+                        help='Show verbose logging messages')
 
     arg = parser.parse_args(sys.argv[1:])
+
+    if arg.verbose:
+        log.setLevel(logging.DEBUG)
 
     signal_list = arg.signals.split(",")
     detector_uuid_list = arg.detectors.split(",")
