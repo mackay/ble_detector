@@ -3,6 +3,11 @@ from peewee import *
 import json
 from datetime import datetime
 
+#set sane default log levels
+import logging
+logging.getLogger('peewee').setLevel(logging.INFO)
+logging.getLogger("peewee.pool").setLevel(logging.DEBUG)
+
 database = SqliteDatabase('detector.db')
 
 
@@ -63,6 +68,7 @@ class Training(BaseModel):
     date = DateTimeField(default=datetime.utcnow)
     beacon = ForeignKeyField(rel_model=Beacon)
     expectation = JSONField()
+    is_used = IntegerField(default=1)
 
     class Meta:
         order_by = ('date', 'expectation', 'beacon')
