@@ -1,7 +1,7 @@
 
 from display.scene import Sprite, Pixel
 
-from random import randint, random
+from random import randint, uniform
 
 
 class Cloud(Sprite):
@@ -12,7 +12,7 @@ class Cloud(Sprite):
         alpha = alpha * 0.5
         return red, green, blue, alpha
 
-    def __init__(self, position=0, color=None, min_radius=2, max_radius=6, movement_chance=0.5):
+    def __init__(self, position=0, color=None, min_radius=2, max_radius=6, movement_chance=0.2):
         super(Cloud, self).__init__(position=position)
         self.color = color or Pixel(237, 237, 237, 200)
         self.cloud_radius = randint(min_radius, max_radius)
@@ -66,7 +66,7 @@ class Sky(Sprite):
 
         self.clouds = [ Cloud( color=self.cloud_pixel,
                                position=randint(0, world_size),
-                               movement_chance=max(0.9, min(0.1, random())) ) for i in range(clouds) ]
+                               movement_chance=uniform(0.01, 0.25) ) for i in range(clouds) ]
         for cloud in self.clouds:
             self.add_sprite(cloud)
 

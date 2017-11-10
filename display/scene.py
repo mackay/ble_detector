@@ -1,6 +1,8 @@
 
 from Blit import Color
 
+from datetime import datetime
+
 
 class Pixel(Color):
 
@@ -89,6 +91,10 @@ class World(SpriteContainer):
 
         self.run_enable = True
 
+        self.timing_previous_frame = datetime.utcnow()
+        self.timing_lag = 0.0
+        self.timing_ms_per_update = 33.33
+
     def update(self):
         for sprite in self.sprites:
             sprite.update_from(self)
@@ -98,9 +104,17 @@ class World(SpriteContainer):
             sprite.render_to(self.pixels)
 
     def run(self, world_frame_callback=None):
-
+        lag = 0.0
         while self.run_enable:
-            self.update()
+            timing_current = datetime.utcnow()
+            timing_elapsed = (timing_current - self.timing_previous_frame).microseconds / 1000
+
+            self.timing_previous_frame = timing_current
+            lag += timing_elapsed
+
+            while lag > self.timing_ms_per_update:
+                self.update()
+                lag -= self.timing_ms_per_update
 
             if world_frame_callback:
                 world_frame_callback(self)

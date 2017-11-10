@@ -8,11 +8,8 @@ log = logging.getLogger()
 from display.virtual import PyGameScene
 from display.atmosphere import Sky
 
-import time
 
-
-def delay(world):
-    time.sleep(0.5)
+def world_callback(world):
     return False
 
 PIXELS = 90
@@ -40,4 +37,4 @@ if __name__ == "__main__":
         scene = NeoPixelScene(PIXELS)
 
     scene.add_sprite( Sky(clouds=2, world_size=PIXELS) )
-    scene.run( delay )
+    scene.run( world_callback )
