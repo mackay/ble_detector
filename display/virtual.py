@@ -12,17 +12,19 @@ class PyGameScene(World):
 
         pygame.init()
 
-        #### Create a canvas on which to display everything ####
         self.window = (self.pixel_size * pixel_count, self.pixel_size)
         self.screen = pygame.display.set_mode(self.window)
-        #### Create a canvas on which to display everything ####
-
-        #### Create a surface with the same size as the window ####
         self.background = pygame.Surface(self.window)
-        #### Create a surface with the same size as the window ####
 
     def __to_color(self, pixel):
         return (pixel.r, pixel.g, pixel.b, pixel.a)
+
+    def update(self):
+        super(PyGameScene, self).update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.run_enable = False
 
     def render(self):
         super(PyGameScene, self).render()
@@ -37,19 +39,3 @@ class PyGameScene(World):
 
         self.screen.blit(self.background, (0, 0))
         pygame.display.flip()
-
-    def run(self, world_frame_callback=None):
-        done = False
-        while not done:
-            self.update()
-
-            if world_frame_callback:
-                world_frame_callback(self)
-
-            self.render()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    done = True
-
-        pygame.quit()

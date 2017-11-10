@@ -1,4 +1,4 @@
-from display.scene import Scene
+from display.scene import World
 from neopixel import Adafruit_NeoPixel, ws
 
 # LED strip configuration:
@@ -12,7 +12,7 @@ LED_CHANNEL    = 0
 # LED_STRIP      = ws.SK6812_STRIP_RGBW
 
 
-class NeoPixelScene(Scene):
+class NeoPixelScene(World):
     def __init__(self, pixel_count, led_dma=10, led_strip=ws.SK6812_STRIP_RGBW):
         super(NeoPixelScene, self).__init__(pixel_count)
 

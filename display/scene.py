@@ -87,6 +87,8 @@ class World(SpriteContainer):
         self.pixels = [ Pixel() for i in range(pixel_count) ]
         self.state = { }
 
+        self.run_enable = True
+
     def update(self):
         for sprite in self.sprites:
             sprite.update_from(self)
@@ -94,6 +96,16 @@ class World(SpriteContainer):
     def render(self):
         for sprite in self.sprites:
             sprite.render_to(self.pixels)
+
+    def run(self, world_frame_callback=None):
+
+        while self.run_enable:
+            self.update()
+
+            if world_frame_callback:
+                world_frame_callback(self)
+
+            self.render()
 
 
 class Sprite(SpriteContainer):
