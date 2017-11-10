@@ -5,7 +5,6 @@ import sys
 import logging
 log = logging.getLogger()
 
-from display.virtual import PyGameScene
 from display.atmosphere import Sky
 
 
@@ -25,15 +24,11 @@ if __name__ == "__main__":
 
     arg = parser.parse_args(sys.argv[1:])
 
-    try:
-        from display.neopixel import NeoPixelScene
-    except:
-        print "Failed to load NeoPixelScene, forcing virtual"
-        arg.virtual = True
-
     if arg.virtual:
+        from display.virtual import PyGameScene
         scene = PyGameScene(PIXELS, pixel_size=10)
     else:
+        from display.neopixel import NeoPixelScene
         scene = NeoPixelScene(PIXELS)
 
     scene.add_sprite( Sky(clouds=2, world_size=PIXELS) )
