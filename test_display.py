@@ -8,6 +8,8 @@ log = logging.getLogger()
 from display import World
 from display.atmosphere import Sky, Stars, Ground, Rain, CloudCover
 
+import signal
+
 
 def world_callback(world):
     return False
@@ -23,11 +25,16 @@ if __name__ == "__main__":
     parser.add_argument('--virtual', action="store_true", dest="virtual", default=False,
                         help='Use virtual display')
     parser.add_argument('--led', action="store_true", dest="led", default=False,
-                        help='Use virtual display')
+                        help='Use led display')
     parser.add_argument('--text-color', action="store_true", dest="text_color", default=False,
-                        help='Use virtual display')
+                        help='Use ansi color text display')
     parser.add_argument('--text', action="store_true", dest="text", default=False,
-                        help='Use virtual display')
+                        help='Use text display')
+
+    parser.add_argument('--fps', action="store_true", dest="fps", default=False,
+                        help='Show FPS')
+    parser.add_argument('--profiler', action="store_true", dest="profiler", default=False,
+                        help='Run timing profiler')
 
     parser.add_argument('scene', default="grass,clouds", nargs='?',
                         help='Which scenes to composite.  Choices include: sky, grass, dirt, night, rain, clouds, stars')
@@ -35,7 +42,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    scene = World(PIXELS)
+    scene = World(PIXELS, print_fps=args.fps)
 
     if args.virtual:
         from display.renderers.virtual import PyGameRenderer
@@ -73,4 +80,29 @@ if __name__ == "__main__":
         scene.add_sprite( Stars(stars=5, world_size=PIXELS) )
 
 
+    profile = None
+    if args.profiler:
+        print "starting profiler"
+        import cProfile as profile
+
+        profile = profile.Profile(timeunit=100)
+        profile.enable()
+
+
+    def signal_handler(signal, frame):
+        print('\nStopping world run loop\n')
+        scene.stop()
+
+    signal.signal(signal.SIGINT, signal_handler)
+
     scene.run( world_callback )
+
+    if profile:
+        import pstats
+        profile.disable()
+
+        sortby = 'cumulative'
+        ps = pstats.Stats(profile).sort_stats(sortby)
+
+        ps.print_stats(0.25)
+        ps.dump_stats("./profile.pf")
