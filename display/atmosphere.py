@@ -174,7 +174,7 @@ class Star(Point):
 class Stars(Ground):
     NIGHT_COLOR = Pixel(0, 0, 0)
 
-    def __init__(self, stars=5, brightness_variance=.10, world_size=25):
+    def __init__(self, stars=5, brightness_variance=.0, world_size=25):
         super(Stars, self).__init__(ground_color=Stars.NIGHT_COLOR, brightness_variance=brightness_variance)
 
         for i in range(stars):
