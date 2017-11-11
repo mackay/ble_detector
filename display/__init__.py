@@ -80,9 +80,25 @@ class Pixel(Color):
     def copy(self):
         return Pixel(self.r, self.g, self.b, self.a)
 
-    def blend(self, other, mask=None, opacity=1, blendfunc=None):
-        layer = super(Pixel, self).blend(other, mask, opacity, blendfunc)
-        self.__set_color_from_layer(layer)
+    def _blend_channel(self, incoming, background, alpha):
+        if alpha == 1:
+            return incoming
+
+        if alpha == 0:
+            return background
+
+        return incoming * alpha + (1 - alpha) * background
+
+    def blend(self, other, mask=None, opacity=None, blendfunc=None):
+
+        r = self._blend_channel( other.r_n, self.r_n, opacity or other.a_n )
+        g = self._blend_channel( other.g_n, self.g_n, opacity or other.a_n )
+        b = self._blend_channel( other.b_n, self.b_n, opacity or other.a_n )
+
+        self.set_color_n( r, g, b, self.a_n )
+
+        # layer = super(Pixel, self).blend(other, mask, opacity, blendfunc)
+        # self.__set_color_from_layer(layer)
 
     def adjust(self, adjustfunc):
         layer = super(Pixel, self).adjust(adjustfunc)
