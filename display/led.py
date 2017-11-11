@@ -35,6 +35,9 @@ class NeoPixelScene(World):
 
         self.strip.begin()
 
+    def update(self):
+        super(NeoPixelScene, self).update()
+
     def render(self):
         super(NeoPixelScene, self).render()
 
