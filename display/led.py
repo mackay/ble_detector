@@ -35,6 +35,12 @@ class NeoPixelScene(World):
 
         self.strip.begin()
 
+        for idx, pixel in enumerate(self.pixels):
+            self.strip.setPixelColorRGB(idx, 0, 0, 0, 0)
+
+        self.strip.show()
+
+
     def update(self):
         super(NeoPixelScene, self).update()
 
