@@ -1,5 +1,5 @@
 
-from display.scene import Sprite, Pixel
+from display import Sprite, Pixel
 from display.statics import Splotch
 from display.dynamics import RightDrift
 

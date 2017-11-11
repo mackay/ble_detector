@@ -1,7 +1,13 @@
-from colour import Color
-from scene import Dynamic
 
 from random import randint, uniform, random
+
+from colour import Color
+from display import Dynamic
+
+
+SHIFT_UP = 1
+SHIFT_DOWN = -1
+SHIFT_BOTH = None
 
 
 def l_shift(pixel, shift_amount):
@@ -17,11 +23,6 @@ def l_shift(pixel, shift_amount):
                                shift_color.blue,
                                pixel.a_n )
     return shifted_pixel
-
-
-SHIFT_UP = 1
-SHIFT_DOWN = -1
-SHIFT_BOTH = None
 
 
 def l_shift_range(pixel, shift_range, direction=None):

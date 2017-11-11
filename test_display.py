@@ -5,6 +5,7 @@ import sys
 import logging
 log = logging.getLogger()
 
+from display import World
 from display.atmosphere import Sky, Stars, Ground
 
 
@@ -28,12 +29,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
+    scene = World(PIXELS)
+
     if args.virtual:
-        from display.virtual import PyGameScene
-        scene = PyGameScene(PIXELS)
+        from display.renderers.virtual import PyGameRenderer
+        scene.add_renderer( PyGameRenderer() )
     else:
-        from display.led import NeoPixelScene
-        scene = NeoPixelScene(PIXELS)
+        from display.renderers.led import NeoPixelRenderer
+        scene.add_renderer( NeoPixelRenderer() )
 
     if args.scene == "sky":
         scene.add_sprite( Sky(clouds=2, world_size=PIXELS) )

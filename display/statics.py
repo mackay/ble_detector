@@ -1,4 +1,4 @@
-from display.scene import Sprite
+from display import Sprite
 
 
 class Point(Sprite):
