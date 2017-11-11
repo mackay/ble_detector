@@ -7,6 +7,8 @@ from display.sprites import Point
 from display.dynamics import Twinkle
 from display.dynamics import l_shift_range, SHIFT_UP, SHIFT_DOWN
 
+from display.dynamics import Lifespan
+
 from random import randint, uniform
 
 
@@ -30,12 +32,15 @@ class Cloud(Splotch):
 
 
 class CloudCover(DynamicSprite):
-    def __init__(self, clouds=2, cloud_color=None, world_size=25):
+    def __init__(self, clouds=2, cloud_color=None, world_size=25, cloud_min_radius=2, cloud_max_radius=10):
         super(CloudCover, self).__init__()
         self.cloud_color = cloud_color or Pixel(237, 237, 237, 200)
 
         for i in range(clouds):
-            self.add_sprite(Cloud.generate(color=self.cloud_color, world_size=world_size))
+            self.add_sprite(Cloud.generate(color=self.cloud_color,
+                                           min_radius=cloud_min_radius,
+                                           max_radius=cloud_max_radius,
+                                           world_size=world_size))
 
 
 class Sky(CloudCover):
@@ -59,6 +64,7 @@ class Sky(CloudCover):
 
 class Ground(DynamicSprite):
 
+    NIGHT_COLOR = Pixel(0, 0, 0)
     DIRT_COLOR = Pixel(120, 72, 0)
     MEADOW_COLOR = Pixel(0, 92, 9)
     HILL_COLOR = Pixel(0, 123, 12)
@@ -73,7 +79,7 @@ class Ground(DynamicSprite):
         self.ground_buffer = None
 
     def update_from(self, world, elapsed_time):
-        super(Ground, self).update_from(world)
+        super(Ground, self).update_from(world, elapsed_time)
 
         if self.ground_buffer is None or len(self.ground_buffer) != len(world.pixels):
             self.ground_buffer = [ self.ground_color ] * len(world.pixels)
@@ -171,18 +177,16 @@ class Star(Point):
         return Pixel(color[0], color[1], color[2])
 
 
-class Stars(Ground):
-    NIGHT_COLOR = Pixel(0, 0, 0)
+class Stars(DynamicSprite):
 
-    def __init__(self, stars=5, brightness_variance=.0, world_size=25):
-        super(Stars, self).__init__(ground_color=Stars.NIGHT_COLOR, brightness_variance=brightness_variance)
+    def __init__(self, stars=5, world_size=25):
+        super(Stars, self).__init__()
 
         for i in range(stars):
             self.add_sprite(Star.generate(world_size=world_size))
 
 
-
-class Rain(Ground):
+class Raindrop(Splotch):
 
     RAIN_COLORS = [
         [ 0, 18, 109 ],
@@ -192,21 +196,51 @@ class Rain(Ground):
         [ 0, 83, 146 ]
     ]
 
-    def __init__(self, max_drops=10, drop_rate=.10, brightness_variance=.0, world_size=25):
-        super(Rain, self).__init__(ground_color=Stars.NIGHT_COLOR, brightness_variance=brightness_variance)
+    @classmethod
+    def generate(cls, color=None, position=None, radius=None, min_radius=0, max_radius=3, world_size=25):
+
+        #static shape
+        color = color or cls.get_color()
+        position = position or randint(0, world_size)
+        radius = radius or randint(min_radius, max_radius)
+        drop = cls(color, position, radius)
+
+        #dynamic activity
+        drop.add_dynamic( Lifespan(random_shift=3000) )
+
+        return drop
+
+    @classmethod
+    def get_color(cls):
+        index = randint(0, len(cls.RAIN_COLORS)-1)
+        color = cls.RAIN_COLORS[ index ]
+
+        return Pixel(color[0], color[1], color[2], 128)
+
+
+class Rain(DynamicSprite):
+
+    def __init__(self, max_drops=10, drop_rate=.10, world_size=25):
+        super(Rain, self).__init__()
 
         self.max_drops = 10
         self.drop_rate = drop_rate
-
-        self.drops = [ ]
-
-        # for i in range(stars):
-        #     self.add_sprite(Star.generate(world_size=world_size))
-
+        self.world_size = world_size
 
     def update_from(self, world, elapsed_time):
-        pass
+        super(Rain, self).update_from(world, elapsed_time)
 
-    def add_drop(self, position=None, color=None):
+        if uniform(0, 1) < self.drop_rate:
+            self.add_drop()
+            self.enforce_max_drops()
 
-        drop = Splotch()
+    def add_drop(self):
+        drop = Raindrop.generate(world_size=self.world_size)
+        self.add_sprite( drop )
+
+    def enforce_max_drops(self):
+        while len(self.get_sprites()) > self.max_drops:
+            to_remove = self.get_sprites()[0]
+
+            self.remove_sprite(to_remove)
+            to_remove.destroy()

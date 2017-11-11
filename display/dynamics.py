@@ -100,4 +100,16 @@ class ExpandFade(Expand):
 
 
 class Lifespan(Dynamic):
-    pass
+    def __init__(self, milliseconds=5000, random_shift=0):
+        super(Lifespan, self).__init__()
+
+        self.ttl_ms = milliseconds + randint(-1*random_shift, random_shift)
+        self.life_ms = 0
+
+    def act_on(self, sprite, world, elapsed_time_ms):
+        super(Lifespan, self).act_on(sprite, world, elapsed_time_ms)
+
+        self.life_ms += elapsed_time_ms
+        if self.life_ms > self.ttl_ms:
+            world.remove_sprite(sprite)
+            sprite.destroy()

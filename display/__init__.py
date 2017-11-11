@@ -109,25 +109,47 @@ class Pixel(Color):
         return self.__repr__()
 
 
-class SpriteContainer(object):
+class DisplayEntity(object):
     def __init__(self):
+        self.id = str(uuid.uuid4())
+
+    def destroy(self):
+        pass
+
+
+class SpriteContainer(DisplayEntity):
+    def __init__(self):
+        super(SpriteContainer, self).__init__()
         self.sprites = [ ]
 
     def clear_sprites(self):
+        for sprite in self.get_sprites():
+            sprite.destroy()
+
         self.sprites = [ ]
 
     def add_sprite(self, sprite):
         self.sprites.append(sprite)
 
+    def remove_sprite(self, sprite, recurse=True):
+        if recurse:
+            for needle in self.sprites:
+                needle.remove_sprite(sprite)
+
+        self.sprites[:] = [ needle for needle in self.sprites if needle.id != sprite.id ]
+
     def get_sprites(self):
         return self.sprites[:]
+
+    def destroy(self):
+        super(SpriteContainer, self).destroy()
+        self.clear_sprites()
 
 
 class Sprite(SpriteContainer):
     def __init__(self, position=None):
         super(Sprite, self).__init__()
 
-        self.id = str(uuid.uuid4())
         self.position = position or 0
 
     def render_to(self, pixel_buffer):
@@ -151,20 +173,30 @@ class DynamicSprite(Sprite):
     def add_dynamic(self, dynamic):
         self.dynamics.append(dynamic)
 
-    def update_from(self, world, elapsed_time):
+    def clear_dynamics(self):
+        for dynamic in self.dynamics:
+            dynamic.destroy()
+
+        self.dynamics = [ ]
+
+    def update_from(self, world, elapsed_time_ms):
         for sprite in self.sprites:
             if isinstance(sprite, DynamicSprite):
-                sprite.update_from(world, elapsed_time)
+                sprite.update_from(world, elapsed_time_ms)
 
         for dynamic in self.dynamics:
-            dynamic.act_on(self, world, elapsed_time)
+            dynamic.act_on(self, world, elapsed_time_ms)
+
+    def destroy(self):
+        super(DynamicSprite, self).destroy()
+        self.clear_dynamics()
 
 
-class Dynamic(object):
+class Dynamic(DisplayEntity):
     def __init__(self):
-        pass
+        super(Dynamic, self).__init__()
 
-    def act_on(self, sprite, world, elapsed_time):
+    def act_on(self, sprite, world, elapsed_time_ms):
         pass
 
 
@@ -175,6 +207,9 @@ class RenderableContainer(SpriteContainer):
         self.renderers = [ ]
 
     def clear_renderers(self):
+        for renderer in self.renderers:
+            renderer.destroy()
+
         self.renderers = [ ]
 
     def add_renderer(self, renderer):
@@ -191,10 +226,14 @@ class RenderableContainer(SpriteContainer):
         for renderer in self.renderers:
             renderer.render_buffer(self.pixels)
 
+    def destroy(self):
+        super(RenderableContainer, self).destroy()
+        self.clear_renderers()
 
-class Renderer(object):
+
+class Renderer(DisplayEntity):
     def __init__(self):
-        pass
+        super(Renderer, self).__init__()
 
     def setup(self, pixel_count, world):
         pass
@@ -213,17 +252,17 @@ class World(RenderableContainer):
         self.timing_previous_frame = datetime.utcnow()
         self.timing_lag = 0.0
         self.timing_ms_per_update = 33.33
-        self.timing_elapsed = 0.0
+        self.timing_elapsed_ms = 0.0
 
-    def update(self, elapsed_time):
+    def update(self, elapsed_time_ms):
         for sprite in self.sprites:
-            sprite.update_from(self, elapsed_time)
+            sprite.update_from(self, elapsed_time_ms)
 
     def run(self, world_frame_callback=None):
         lag = 0.0
 
         #do at least one update before rendering
-        self.update(self.timing_elapsed)
+        self.update(self.timing_elapsed_ms)
 
         while self.run_enable:
             timing_current = datetime.utcnow()
@@ -235,7 +274,7 @@ class World(RenderableContainer):
             while lag > self.timing_ms_per_update:
                 self.update( self.timing_ms_per_update )
 
-                self.timing_elapsed += self.timing_ms_per_update
+                self.timing_elapsed_ms += self.timing_ms_per_update
                 lag -= self.timing_ms_per_update
 
             if world_frame_callback:
