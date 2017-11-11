@@ -145,6 +145,10 @@ class World(SpriteContainer):
 
     def run(self, world_frame_callback=None):
         lag = 0.0
+
+        #do at least one update before rendering
+        self.update()
+
         while self.run_enable:
             timing_current = datetime.utcnow()
             timing_elapsed = (timing_current - self.timing_previous_frame).microseconds / 1000
