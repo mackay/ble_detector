@@ -1,9 +1,9 @@
 
-from display import Sprite, Pixel
-from display.statics import Splotch
+from display import DynamicSprite, Pixel
+from display.sprites import Splotch
 from display.dynamics import RightDrift
 
-from display.statics import Point
+from display.sprites import Point
 from display.dynamics import Twinkle
 from display.dynamics import l_shift_range, SHIFT_UP, SHIFT_DOWN
 
@@ -29,7 +29,7 @@ class Cloud(Splotch):
         return cloud
 
 
-class CloudCover(Sprite):
+class CloudCover(DynamicSprite):
     def __init__(self, clouds=2, cloud_color=None, world_size=25):
         super(CloudCover, self).__init__()
         self.cloud_color = cloud_color or Pixel(237, 237, 237, 200)
@@ -57,7 +57,7 @@ class Sky(CloudCover):
         super(Sky, self).render_to(pixel_buffer)
 
 
-class Ground(Sprite):
+class Ground(DynamicSprite):
 
     DIRT_COLOR = Pixel(120, 72, 0)
     MEADOW_COLOR = Pixel(0, 92, 9)
@@ -72,7 +72,7 @@ class Ground(Sprite):
 
         self.ground_buffer = None
 
-    def update_from(self, world):
+    def update_from(self, world, elapsed_time):
         super(Ground, self).update_from(world)
 
         if self.ground_buffer is None or len(self.ground_buffer) != len(world.pixels):
@@ -179,3 +179,34 @@ class Stars(Ground):
 
         for i in range(stars):
             self.add_sprite(Star.generate(world_size=world_size))
+
+
+
+class Rain(Ground):
+
+    RAIN_COLORS = [
+        [ 0, 18, 109 ],
+        [ 161, 219, 236 ],
+        [ 12, 194, 221 ],
+        [ 48, 146, 206 ],
+        [ 0, 83, 146 ]
+    ]
+
+    def __init__(self, max_drops=10, drop_rate=.10, brightness_variance=.0, world_size=25):
+        super(Rain, self).__init__(ground_color=Stars.NIGHT_COLOR, brightness_variance=brightness_variance)
+
+        self.max_drops = 10
+        self.drop_rate = drop_rate
+
+        self.drops = [ ]
+
+        # for i in range(stars):
+        #     self.add_sprite(Star.generate(world_size=world_size))
+
+
+    def update_from(self, world, elapsed_time):
+        pass
+
+    def add_drop(self, position=None, color=None):
+
+        drop = Splotch()

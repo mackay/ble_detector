@@ -123,83 +123,12 @@ class SpriteContainer(object):
         return self.sprites[:]
 
 
-class World(SpriteContainer):
-    def __init__(self, pixel_count):
-        super(World, self).__init__()
-        self.pixels = [ Pixel() for i in range(pixel_count) ]
-        self.state = { }
-
-        self.run_enable = True
-
-        self.timing_previous_frame = datetime.utcnow()
-        self.timing_lag = 0.0
-        self.timing_ms_per_update = 33.33
-
-        self.renderers = [ ]
-
-    def clear_renderers(self):
-        self.renderers = [ ]
-
-    def add_renderer(self, renderer):
-        renderer.setup(len(self.pixels), self)
-        self.renderers.append(renderer)
-
-    def get_renderers(self):
-        return self.renderers[:]
-
-    def update(self):
-        for sprite in self.sprites:
-            sprite.update_from(self)
-
-    def render(self):
-        for sprite in self.sprites:
-            sprite.render_to(self.pixels)
-
-        for renderer in self.renderers:
-            renderer.render_buffer(self.pixels)
-
-    def run(self, world_frame_callback=None):
-        lag = 0.0
-
-        #do at least one update before rendering
-        self.update()
-
-        while self.run_enable:
-            timing_current = datetime.utcnow()
-            timing_elapsed = (timing_current - self.timing_previous_frame).microseconds / 1000
-
-            self.timing_previous_frame = timing_current
-            lag += timing_elapsed
-
-            while lag > self.timing_ms_per_update:
-                self.update()
-                lag -= self.timing_ms_per_update
-
-            if world_frame_callback:
-                world_frame_callback(self)
-
-            self.render()
-
-
 class Sprite(SpriteContainer):
-    def __init__(self, position=0):
+    def __init__(self, position=None):
         super(Sprite, self).__init__()
 
         self.id = str(uuid.uuid4())
-
-        self.position = position
-        self.dynamics = [ ]
-        self.state = { }
-
-    def add_dynamic(self, dynamic):
-        self.dynamics.append(dynamic)
-
-    def update_from(self, world):
-        for sprite in self.sprites:
-            sprite.update_from(world)
-
-        for dynamic in self.dynamics:
-            dynamic.act_on(self, world)
+        self.position = position or 0
 
     def render_to(self, pixel_buffer):
         for sprite in self.sprites:
@@ -212,12 +141,55 @@ class Sprite(SpriteContainer):
         return position >= 0 and position < len(pixel_buffer)
 
 
+class DynamicSprite(Sprite):
+    def __init__(self, position=None):
+        super(DynamicSprite, self).__init__(position=position)
+
+        self.state = { }
+        self.dynamics = [ ]
+
+    def add_dynamic(self, dynamic):
+        self.dynamics.append(dynamic)
+
+    def update_from(self, world, elapsed_time):
+        for sprite in self.sprites:
+            if isinstance(sprite, DynamicSprite):
+                sprite.update_from(world, elapsed_time)
+
+        for dynamic in self.dynamics:
+            dynamic.act_on(self, world, elapsed_time)
+
+
 class Dynamic(object):
     def __init__(self):
         pass
 
-    def act_on(self, sprite, world):
+    def act_on(self, sprite, world, elapsed_time):
         pass
+
+
+class RenderableContainer(SpriteContainer):
+    def __init__(self, pixel_count):
+        super(RenderableContainer, self).__init__()
+        self.pixels = [ Pixel() for i in range(pixel_count) ]
+        self.renderers = [ ]
+
+    def clear_renderers(self):
+        self.renderers = [ ]
+
+    def add_renderer(self, renderer):
+        renderer.setup(len(self.pixels), self)
+        self.renderers.append(renderer)
+
+    def get_renderers(self):
+        return self.renderers[:]
+
+    def render(self):
+        for sprite in self.sprites:
+            sprite.render_to(self.pixels)
+
+        for renderer in self.renderers:
+            renderer.render_buffer(self.pixels)
 
 
 class Renderer(object):
@@ -229,3 +201,44 @@ class Renderer(object):
 
     def render_buffer(self, pixel_buffer):
         pass
+
+
+class World(RenderableContainer):
+    def __init__(self, pixel_count):
+        super(World, self).__init__(pixel_count)
+        self.state = { }
+
+        self.run_enable = True
+
+        self.timing_previous_frame = datetime.utcnow()
+        self.timing_lag = 0.0
+        self.timing_ms_per_update = 33.33
+        self.timing_elapsed = 0.0
+
+    def update(self, elapsed_time):
+        for sprite in self.sprites:
+            sprite.update_from(self, elapsed_time)
+
+    def run(self, world_frame_callback=None):
+        lag = 0.0
+
+        #do at least one update before rendering
+        self.update(self.timing_elapsed)
+
+        while self.run_enable:
+            timing_current = datetime.utcnow()
+            timing_elapsed = (timing_current - self.timing_previous_frame).microseconds / 1000
+
+            self.timing_previous_frame = timing_current
+            lag += timing_elapsed
+
+            while lag > self.timing_ms_per_update:
+                self.update( self.timing_ms_per_update )
+
+                self.timing_elapsed += self.timing_ms_per_update
+                lag -= self.timing_ms_per_update
+
+            if world_frame_callback:
+                world_frame_callback(self)
+
+            self.render()

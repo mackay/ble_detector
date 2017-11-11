@@ -1,7 +1,7 @@
-from display import Sprite
+from display import DynamicSprite
 
 
-class Point(Sprite):
+class Point(DynamicSprite):
 
     def __init__(self, color, position):
         super(Point, self).__init__(position=position)
@@ -14,7 +14,7 @@ class Point(Sprite):
             pixel_buffer[self.position].blend(self.color)
 
 
-class Splotch(Sprite):
+class Splotch(DynamicSprite):
 
     @staticmethod
     def __alpha_adjust(rgba):

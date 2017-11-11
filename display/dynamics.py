@@ -55,8 +55,8 @@ class RightDrift(Dynamic):
 
         self.movement_chance = movement_chance * 100
 
-    def act_on(self, sprite, world):
-        super(RightDrift, self).act_on(sprite, world)
+    def act_on(self, sprite, world, elapsed_time):
+        super(RightDrift, self).act_on(sprite, world, elapsed_time)
 
         movement_gate = randint(0, 100)
 
@@ -75,8 +75,8 @@ class Twinkle(Dynamic):
         self.l_shift_max = max(min(1.0, max_l_shift), 0.0)
         self.l_shift_frequency = frequency
 
-    def act_on(self, sprite, world):
-        super(Twinkle, self).act_on(sprite, world)
+    def act_on(self, sprite, world, elapsed_time):
+        super(Twinkle, self).act_on(sprite, world, elapsed_time)
 
         if Twinkle.TWINKLE_BASE_COLOR not in sprite.state:
             sprite.state[Twinkle.TWINKLE_BASE_COLOR] = sprite.color
@@ -89,3 +89,15 @@ class Twinkle(Dynamic):
         if random() < self.l_shift_frequency:
             sprite.color = l_shift_range( sprite.state[Twinkle.TWINKLE_BASE_COLOR],
                                           self.l_shift_max )
+
+
+class Expand(Dynamic):
+    pass
+
+
+class ExpandFade(Expand):
+    pass
+
+
+class Lifespan(Dynamic):
+    pass
