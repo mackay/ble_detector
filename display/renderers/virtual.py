@@ -1,12 +1,13 @@
 
 import pygame
+from pygame.locals import DOUBLEBUF
 
 from display import Renderer
 
 
 class PyGameRenderer(Renderer):
 
-    def __init__(self, width=1200, height=400):
+    def __init__(self, width=1200, height=40):
         super(PyGameRenderer, self).__init__()
         self.target_height = height
         self.target_width = width
@@ -23,7 +24,9 @@ class PyGameRenderer(Renderer):
         pygame.init()
 
         self.window = (self.width, self.height)
-        self.screen = pygame.display.set_mode(self.window)
+        self.flags = DOUBLEBUF
+
+        self.screen = pygame.display.set_mode(self.window, self.flags)
         self.background = pygame.Surface(self.window)
 
         #keep a reference to the world - pygame has feeback to process
