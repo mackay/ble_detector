@@ -4,6 +4,52 @@ from scene import Dynamic
 from random import randint, uniform, random
 
 
+def l_shift(pixel, shift_amount):
+    shift_color = Color(rgb=( pixel.r_n,
+                              pixel.g_n,
+                              pixel.b_n ))
+
+    shift_color.luminance += shift_amount
+
+    shifted_pixel = pixel.copy()
+    shifted_pixel.set_color_n( shift_color.red,
+                               shift_color.green,
+                               shift_color.blue,
+                               pixel.a_n )
+    return shifted_pixel
+
+
+SHIFT_UP = 1
+SHIFT_DOWN = -1
+SHIFT_BOTH = None
+
+
+def l_shift_range(pixel, shift_range, direction=None):
+    shift_color = Color(rgb=( pixel.r_n,
+                              pixel.g_n,
+                              pixel.b_n ))
+
+    upper_bound = shift_color.luminance
+    lower_bound = shift_color.luminance
+
+    if direction is None or direction > 0:
+        upper_bound += shift_range
+
+    if direction is None or direction < 0:
+        lower_bound -= shift_range
+
+    shift_color.luminance = max( 0.0, min( 1.0, uniform( upper_bound, lower_bound ) ) )
+
+    shifted_pixel = pixel.copy()
+    shifted_pixel.set_color_n( shift_color.red,
+                               shift_color.green,
+                               shift_color.blue,
+                               pixel.a_n )
+    return shifted_pixel
+
+
+
+
 class RightDrift(Dynamic):
     def __init__(self, movement_chance=0.2):
         super(RightDrift, self).__init__()
@@ -42,14 +88,5 @@ class Twinkle(Dynamic):
 
         #if we hit the twinkle frequency, shift the base color
         if random() < self.l_shift_frequency:
-            base_color = sprite.state[Twinkle.TWINKLE_BASE_COLOR].copy()
-            shift_color = Color(rgb=( base_color.r_n,
-                                      base_color.g_n,
-                                      base_color.b_n ))
-            shift_color.luminance = max( 0.0, min( 1.0, uniform(shift_color.luminance - self.l_shift_max,
-                                                                shift_color.luminance + self.l_shift_max) ) )
-
-            sprite.color.set_color_n(shift_color.red,
-                                     shift_color.green,
-                                     shift_color.blue,
-                                     sprite.color.a_n )
+            sprite.color = l_shift_range( sprite.state[Twinkle.TWINKLE_BASE_COLOR],
+                                          self.l_shift_max )

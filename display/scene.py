@@ -193,7 +193,6 @@ class Sprite(SpriteContainer):
         return position >= 0 and position < len(pixel_buffer)
 
 
-
 class Dynamic(object):
     def __init__(self):
         pass

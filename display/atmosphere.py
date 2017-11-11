@@ -5,8 +5,7 @@ from display.dynamics import RightDrift
 
 from display.statics import Point
 from display.dynamics import Twinkle
-
-from Blit.adjustments import curves
+from display.dynamics import l_shift_range, SHIFT_UP, SHIFT_DOWN
 
 from random import randint, uniform
 
@@ -65,7 +64,7 @@ class Ground(Sprite):
     HILL_COLOR = Pixel(0, 123, 12)
     GRASS_COLOR = Pixel(1, 166, 17)
 
-    def __init__(self, ground_color=None, brightness_variance=.10):
+    def __init__(self, ground_color=None, brightness_variance=.05):
         self.ground_color = ground_color or Ground.DIRT_COLOR
         self.brightness_variance = brightness_variance
 
@@ -79,22 +78,18 @@ class Ground(Sprite):
         if self.ground_buffer is None or len(self.ground_buffer) != len(world.pixels):
             self.ground_buffer = [ self.ground_color ] * len(world.pixels)
 
-            adjust_up = curves( 0,
-                                128 * uniform( self.brightness_variance, 1 + self.brightness_variance ),
-                                255 )
-
-            adjust_down = curves( 0,
-                                  128 * uniform( 1 - self.brightness_variance, self.brightness_variance ),
-                                  255 )
-
             for i in range(0, len(world.pixels)):
                 self.ground_buffer[i] = self.ground_color.copy()
 
                 picker = randint(0, 10)
                 if picker < 2:
-                    self.ground_buffer[i].adjust( adjust_up )
+                    self.ground_buffer[i] = l_shift_range( self.ground_buffer[i],
+                                                           self.brightness_variance,
+                                                           SHIFT_UP )
                 elif picker > 7:
-                    self.ground_buffer[i].adjust( adjust_down )
+                    self.ground_buffer[i] = l_shift_range( self.ground_buffer[i],
+                                                           self.brightness_variance,
+                                                           SHIFT_DOWN )
 
     def render_to(self, pixel_buffer):
 

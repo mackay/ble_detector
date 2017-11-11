@@ -42,10 +42,10 @@ if __name__ == "__main__":
         scene.add_sprite( Stars(stars=5, world_size=PIXELS) )
 
     if args.scene == "grass":
-        scene.add_sprite( Ground(ground_color=Ground.MEADOW_COLOR, brightness_variance=0.25) )
+        scene.add_sprite( Ground(ground_color=Ground.MEADOW_COLOR, brightness_variance=0.10) )
 
     if args.scene == "dirt":
-        scene.add_sprite( Ground(ground_color=Ground.DIRT_COLOR, brightness_variance=0.25) )
+        scene.add_sprite( Ground(ground_color=Ground.DIRT_COLOR, brightness_variance=0.05) )
 
 
     scene.run( world_callback )
