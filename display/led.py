@@ -1,5 +1,6 @@
 from display.scene import World
-from neopixel import Adafruit_NeoPixel, ws
+from neopixel import Adafruit_NeoPixel
+import _rpi_ws281x as ws
 
 # LED strip configuration:
 # LED_COUNT      = 40      # Number of LED pixels.
@@ -20,6 +21,8 @@ class NeoPixelScene(World):
         self.led_strip = led_strip
         self.strip = None
 
+        self.__init_pixels()
+
     def __init_pixels(self):
         self.strip = Adafruit_NeoPixel( len(self.pixels),
                                         LED_PIN,
@@ -36,6 +39,6 @@ class NeoPixelScene(World):
         super(NeoPixelScene, self).render()
 
         for idx, pixel in enumerate(self.pixels):
-            self.strip.setPixelColorRGB(idx, pixel.r, pixel.g, pixel.b, pixel.w)
+            self.strip.setPixelColorRGB(idx, int(pixel.r), int(pixel.g), int(pixel.b), int(pixel.w))
 
         self.strip.show()
