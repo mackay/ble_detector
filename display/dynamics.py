@@ -48,8 +48,6 @@ def l_shift_range(pixel, shift_range, direction=None):
     return shifted_pixel
 
 
-
-
 class RightDrift(Dynamic):
     def __init__(self, movement_chance=0.2):
         super(RightDrift, self).__init__()
