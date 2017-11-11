@@ -46,5 +46,5 @@ class Splotch(DynamicSprite):
             if not super(Splotch, self).is_in_buffer(pixel_buffer, position=i):
                 continue
 
-            opacity = 0.5 if i == self._start_position or i == self._end_position else 1
+            opacity = 0.5 * self.color.a_n if i == self._start_position or i == self._end_position else self.color.a_n
             pixel_buffer[i].blend(self.color, opacity=opacity)
