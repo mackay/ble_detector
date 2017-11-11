@@ -14,7 +14,7 @@ LED_CHANNEL    = 0
 
 
 class NeoPixelScene(World):
-    def __init__(self, pixel_count, led_dma=10, led_strip=ws.SK6812_STRIP_RGBW):
+    def __init__(self, pixel_count, led_dma=10, led_strip=ws.SK6812W_STRIP):
         super(NeoPixelScene, self).__init__(pixel_count)
 
         self.led_dma = 10
@@ -48,6 +48,6 @@ class NeoPixelScene(World):
         super(NeoPixelScene, self).render()
 
         for idx, pixel in enumerate(self.pixels):
-            self.strip.setPixelColorRGB(idx, int(pixel.r), int(pixel.g), int(pixel.b), int(pixel.w))
+            self.strip.setPixelColorRGB(idx, int(pixel.r), int(pixel.g), int(pixel.b))  # , int(pixel.w))
 
         self.strip.show()

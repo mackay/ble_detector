@@ -55,7 +55,7 @@ class Pixel(Color):
 
     @property
     def w(self):
-        return (self.r + self.g + self.b) / 255
+        return (self.r + self.g + self.b) / 255.
 
     @property
     def r_n(self):
