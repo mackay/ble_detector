@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     if args.virtual:
         from display.virtual import PyGameScene
-        scene = PyGameScene(PIXELS, pixel_size=10)
+        scene = PyGameScene(PIXELS)
     else:
         from display.led import NeoPixelScene
         scene = NeoPixelScene(PIXELS)
