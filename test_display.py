@@ -64,7 +64,7 @@ if __name__ == "__main__":
         scene.add_sprite( Ground(ground_color=Ground.NIGHT_COLOR, brightness_variance=0.01) )
 
     if "rain" in args.scene:
-        scene.add_sprite( Rain(max_drops=10, drop_rate=.10, world_size=PIXELS) )
+        scene.add_sprite( Rain(max_drops=10, drop_rate=.3, world_size=PIXELS) )
 
     if "clouds" in args.scene:
         scene.add_sprite( CloudCover(clouds=2, world_size=PIXELS, cloud_min_radius=2, cloud_max_radius=int(PIXELS*0.2)) )

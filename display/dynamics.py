@@ -113,3 +113,19 @@ class Lifespan(Dynamic):
         if self.life_ms > self.ttl_ms:
             world.remove_sprite(sprite)
             sprite.destroy()
+
+
+class AlphaLifespan(Lifespan):
+
+    def act_on(self, sprite, world, elapsed_time_ms):
+        super(AlphaLifespan, self).act_on(sprite, world, elapsed_time_ms)
+
+        self.life_ms += elapsed_time_ms
+        if self.life_ms > self.ttl_ms:
+            world.remove_sprite(sprite)
+            sprite.destroy()
+        else:
+            sprite.color.set_color_n( sprite.color.r_n,
+                                      sprite.color.g_n,
+                                      sprite.color.b_n,
+                                      1 - float(self.life_ms) / float(self.ttl_ms) )

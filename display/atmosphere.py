@@ -7,7 +7,7 @@ from display.sprites import Point
 from display.dynamics import Twinkle
 from display.dynamics import l_shift_range, SHIFT_UP, SHIFT_DOWN
 
-from display.dynamics import Lifespan
+from display.dynamics import AlphaLifespan
 
 from random import randint, uniform
 
@@ -206,7 +206,7 @@ class Raindrop(Splotch):
         drop = cls(color, position, radius)
 
         #dynamic activity
-        drop.add_dynamic( Lifespan(random_shift=3000) )
+        drop.add_dynamic( AlphaLifespan(random_shift=3000) )
 
         return drop
 
