@@ -53,10 +53,10 @@ if __name__ == "__main__":
         scene.add_renderer( NeoPixelRenderer() )
     if args.text_color:
         from display.renderers.text import ConsoleColorRenderer
-        scene.add_renderer( ConsoleColorRenderer(clear_on_render=True) )
+        scene.add_renderer( ConsoleColorRenderer(clear_on_render=False) )
     if args.text:
         from display.renderers.text import ConsoleRenderer
-        scene.add_renderer( ConsoleRenderer(clear_on_render=True) )
+        scene.add_renderer( ConsoleRenderer(clear_on_render=False) )
 
 
     if "sky" in args.scene:
