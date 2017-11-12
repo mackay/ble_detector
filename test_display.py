@@ -7,6 +7,7 @@ log = logging.getLogger()
 
 from display import World
 from display.atmosphere import Sky, Stars, Ground, Rain, CloudCover
+from display.atmosphere import ExpandingSplotches
 
 import signal
 
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         scene.add_sprite( Ground(ground_color=Ground.NIGHT_COLOR, brightness_variance=0.01) )
 
     if "rain" in args.scene:
-        scene.add_sprite( Rain(max_drops=10, drop_rate=.3, world_size=PIXELS) )
+        scene.add_sprite( Rain(max_drops=10, drop_rate=.1, world_size=PIXELS) )
 
     if "clouds" in args.scene:
         scene.add_sprite( CloudCover(clouds=2, world_size=PIXELS, cloud_min_radius=2, cloud_max_radius=int(PIXELS*0.2)) )
@@ -79,6 +80,8 @@ if __name__ == "__main__":
     if "stars" in args.scene:
         scene.add_sprite( Stars(stars=5, world_size=PIXELS) )
 
+    if "expand" in args.scene:
+        scene.add_sprite( ExpandingSplotches() )
 
     profile = None
     if args.profiler:

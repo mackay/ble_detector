@@ -92,18 +92,74 @@ class Twinkle(Dynamic):
 
 
 class Expand(Dynamic):
-    pass
+    def __init__(self, expansion_rate_ms=100, maximum_radius=10, radius_adjust_fn=None, destroy_on_max=False):
+        super(Expand, self).__init__()
+
+        self.life_ms = 0
+        self.rate_ms = expansion_rate_ms
+        self.maximum_radius = maximum_radius
+
+        self.radius_adjust_fn = Expand.__radius_adjust_fn
+        self.destroy_on_max = destroy_on_max
+
+    @staticmethod
+    def __radius_adjust_fn(sprite, to_radius=None):
+        if to_radius:
+            sprite.radius = to_radius
+
+        return sprite.radius
+
+    def act_on(self, sprite, world, elapsed_time_ms):
+        super(Expand, self).act_on(sprite, world, elapsed_time_ms)
+
+        self.life_ms += elapsed_time_ms
+        while self.life_ms > self.rate_ms:
+            self.life_ms -= self.rate_ms
+
+            radius = self.radius_adjust_fn(sprite)
+            if radius < self.maximum_radius:
+                radius += 1
+                self.radius_adjust_fn(sprite, radius)
+            elif self.destroy_on_max:
+                world.remove_sprite(sprite)
+                sprite.destroy()
 
 
 class ExpandFade(Expand):
-    pass
+    def __init__(self, expansion_rate_ms=100, maximum_radius=10, radius_adjust_fn=None, destroy_on_max=False):
+        super(ExpandFade, self).__init__( expansion_rate_ms=expansion_rate_ms,
+                                          maximum_radius=maximum_radius,
+                                          radius_adjust_fn=radius_adjust_fn,
+                                          destroy_on_max=destroy_on_max)
+
+        self.starting_radius = None
+
+    def act_on(self, sprite, world, elapsed_time_ms):
+        if self.starting_radius is None:
+            self.starting_radius = self.radius_adjust_fn(sprite)
+
+        super(ExpandFade, self).act_on(sprite, world, elapsed_time_ms)
+
+        radius = self.radius_adjust_fn(sprite)
+
+        # print str(self.starting_radius) + " ... " + str(radius) + " ... " + str(self.maximum_radius)
+        # print ( float(radius - self.starting_radius) )
+        # print ( float(self.starting_radius - self.maximum_radius) )
+        # print ( float(radius - self.starting_radius) ) / ( float(self.starting_radius - self.maximum_radius) )
+
+        alpha = 1 - ( float(radius - self.starting_radius) ) / ( float(self.maximum_radius - self.starting_radius) )
+
+        sprite.color.set_color_n( sprite.color.r_n,
+                                  sprite.color.g_n,
+                                  sprite.color.b_n,
+                                  alpha )
 
 
 class Lifespan(Dynamic):
-    def __init__(self, milliseconds=5000, random_shift=0):
+    def __init__(self, life_ms=5000, random_shift_ms=0):
         super(Lifespan, self).__init__()
 
-        self.ttl_ms = milliseconds + randint(-1*random_shift, random_shift)
+        self.ttl_ms = life_ms + randint(-1*random_shift_ms, random_shift_ms)
         self.life_ms = 0
 
     def act_on(self, sprite, world, elapsed_time_ms):

@@ -12,6 +12,28 @@ class Pixel(Color):
     BLUE_INDEX = 2
     ALPHA_INDEX = 3
 
+    @classmethod
+    def from_tuple(cls, rgb_or_rgba_tuple):
+        a = 255
+        if len(rgb_or_rgba_tuple) > 3:
+            a = rgb_or_rgba_tuple[cls.ALPHA_INDEX]
+
+        return cls( r=rgb_or_rgba_tuple[cls.RED_INDEX],
+                    g=rgb_or_rgba_tuple[cls.GREEN_INDEX],
+                    b=rgb_or_rgba_tuple[cls.BLUE_INDEX],
+                    a=a )
+
+    @classmethod
+    def from_tuple_n(cls, rgb_or_rgba_tuple):
+        a = 1
+        if len(rgb_or_rgba_tuple) > 3:
+            a = rgb_or_rgba_tuple[cls.ALPHA_INDEX]
+
+        return cls( r=rgb_or_rgba_tuple[cls.RED_INDEX]*255,
+                    g=rgb_or_rgba_tuple[cls.GREEN_INDEX]*255,
+                    b=rgb_or_rgba_tuple[cls.BLUE_INDEX]*255,
+                    a=a*255 )
+
     def __init__(self, r=0, g=0, b=0, a=255):
         super(Pixel, self).__init__(r, g, b, a)
 

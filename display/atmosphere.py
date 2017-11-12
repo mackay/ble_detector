@@ -1,6 +1,6 @@
 
 from display import DynamicSprite, Pixel
-from display.sprites import Splotch
+from display.sprites import Splotch, SolidEdgeSplotch
 from display.dynamics import RightDrift
 
 from display.sprites import Point
@@ -8,6 +8,7 @@ from display.dynamics import Twinkle
 from display.dynamics import l_shift_range, SHIFT_UP, SHIFT_DOWN
 
 from display.dynamics import AlphaLifespan
+from display.dynamics import Expand, ExpandFade
 
 from random import randint, uniform
 
@@ -206,7 +207,8 @@ class Raindrop(Splotch):
         drop = cls(color, position, radius)
 
         #dynamic activity
-        drop.add_dynamic( AlphaLifespan(random_shift=3000) )
+        drop.add_dynamic( AlphaLifespan(random_shift_ms=3000) )
+        drop.add_dynamic( Expand(maximum_radius=7, expansion_rate_ms=150) )
 
         return drop
 
@@ -244,3 +246,33 @@ class Rain(DynamicSprite):
 
             self.remove_sprite(to_remove)
             to_remove.destroy()
+
+
+class ExpandingSplotches(DynamicSprite):
+    def __init__(self, splotches=5):
+        super(ExpandingSplotches, self).__init__()
+        self.splotch_count = splotches
+
+    def update_from(self, world, elapsed_time):
+        super(ExpandingSplotches, self).update_from(world, elapsed_time)
+
+        while len(self.get_sprites()) < self.splotch_count:
+            self.add_sprite(self.generate_splotch(len(world.pixels)))
+
+    def generate_splotch(self, world_size):
+        COLORS = [
+            [ 255, 0, 0 ],
+            [ 0, 255, 0 ],
+            [ 0, 0, 255 ]
+        ]
+
+        color = Pixel.from_tuple( COLORS[ randint(0, len(COLORS)-1) ] )
+        position = randint(0, world_size)
+        radius = randint(0, 6)
+        splotch = SolidEdgeSplotch(color, position, radius)
+
+        #dynamic activity
+        splotch.add_dynamic( AlphaLifespan() )
+        splotch.add_dynamic( Expand(maximum_radius=10, expansion_rate_ms=200, destroy_on_max=True) )
+
+        return splotch
