@@ -7,7 +7,7 @@ from display.sprites import Point
 from display.dynamics import Twinkle
 from display.dynamics import l_shift_range, SHIFT_UP, SHIFT_DOWN
 
-from display.dynamics import AlphaLifespan
+from display.dynamics import Lifespan, AlphaLifespan
 from display.dynamics import Expand, ExpandFade
 
 from random import randint, uniform
@@ -268,11 +268,10 @@ class ExpandingSplotches(DynamicSprite):
 
         color = Pixel.from_tuple( COLORS[ randint(0, len(COLORS)-1) ] )
         position = randint(0, world_size)
-        radius = randint(0, 6)
+        radius = randint(0, 2)
         splotch = SolidEdgeSplotch(color, position, radius)
 
         #dynamic activity
-        splotch.add_dynamic( AlphaLifespan() )
-        splotch.add_dynamic( Expand(maximum_radius=10, expansion_rate_ms=200, destroy_on_max=True) )
+        splotch.add_dynamic( ExpandFade(maximum_radius=10, expansion_rate_ms=200, destroy_on_max=True) )
 
         return splotch
