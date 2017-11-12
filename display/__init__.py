@@ -238,10 +238,13 @@ class Dynamic(DisplayEntity):
 
 
 class RenderableContainer(SpriteContainer):
-    def __init__(self, pixel_count):
+    def __init__(self, pixel_count, fps_limit=60):
         super(RenderableContainer, self).__init__()
         self.pixels = [ Pixel() for i in range(pixel_count) ]
         self.renderers = [ ]
+
+        self.render_last = datetime.utcnow()
+        self.render_ms_limit = 1000. / float(fps_limit)
 
     def clear_renderers(self):
         for renderer in self.renderers:
@@ -257,11 +260,17 @@ class RenderableContainer(SpriteContainer):
         return self.renderers[:]
 
     def render(self):
-        for sprite in self.sprites:
-            sprite.render_to(self.pixels)
+        timing_current = datetime.utcnow()
+        timing_elapsed = (timing_current - self.render_last).microseconds / 1000.
 
-        for renderer in self.renderers:
-            renderer.render_buffer(self.pixels)
+        if timing_elapsed >= self.render_ms_limit:
+            self.render_last = timing_current
+
+            for sprite in self.sprites:
+                sprite.render_to(self.pixels)
+
+            for renderer in self.renderers:
+                renderer.render_buffer(self.pixels)
 
     def destroy(self):
         super(RenderableContainer, self).destroy()
@@ -305,7 +314,7 @@ class World(RenderableContainer):
 
         while self.run_enable:
             timing_current = datetime.utcnow()
-            timing_elapsed = (timing_current - self.timing_previous_frame).microseconds / 1000
+            timing_elapsed = (timing_current - self.timing_previous_frame).microseconds / 1000.
 
             if self.print_fps and timing_elapsed:
                 print '{0:.2f}'.format(1000. / float(timing_elapsed)) + " fps @ " + str(timing_elapsed) + " ms / frame"
