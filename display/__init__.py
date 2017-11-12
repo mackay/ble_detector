@@ -98,12 +98,15 @@ class Pixel(object):
         return (incoming - background) * alpha + background
 
     def blend(self, other, mask=None, opacity=None, blendfunc=None):
+        opacity = opacity or other.a_n
 
-        r = self._blend_channel( other.r_n, self.r_n, opacity or other.a_n )
-        g = self._blend_channel( other.g_n, self.g_n, opacity or other.a_n )
-        b = self._blend_channel( other.b_n, self.b_n, opacity or other.a_n )
+        r = self._blend_channel( other.r_n, self.r_n, opacity )
+        g = self._blend_channel( other.g_n, self.g_n, opacity )
+        b = self._blend_channel( other.b_n, self.b_n, opacity )
 
-        self.set_color_n( r, g, b, self.a_n )
+        self._components = r, g, b, self._components[Pixel.ALPHA_INDEX]
+
+        # self.set_color_n( r, g, b, self.a_n )
 
         # layer = super(Pixel, self).blend(other, mask, opacity, blendfunc)
         # self.__set_color_from_layer(layer)
