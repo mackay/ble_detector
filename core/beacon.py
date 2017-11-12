@@ -1,11 +1,11 @@
 
 from core.models import Beacon
-from core.entity import EntityAgent
+from core.entity import ActiveEntity
 
 
-class BeaconAgent(EntityAgent):
+class BeaconActivity(ActiveEntity):
 
     EntityClass = Beacon
 
     def __init__(self, uuid):
-        super(BeaconAgent, self).__init__(uuid)
+        super(BeaconActivity, self).__init__(uuid)

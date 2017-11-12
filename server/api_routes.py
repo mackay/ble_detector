@@ -7,9 +7,9 @@ from core.apiutil import require_fields, serialize_json
 from core.models import database
 
 from core.system import SystemBase
-from core.detector import DetectorAgent
-from core.beacon import BeaconAgent
-from core.training import TrainingNetwork, TrainingAgent
+from core.detector import DetectorActivity
+from core.beacon import BeaconActivity
+from core.training import TrainingNetwork, TrainingActivity
 
 import json
 
@@ -49,10 +49,10 @@ def get_option():
 @serialize_json()
 def post_detector():
     body = request.json
-    detector_agent = DetectorAgent(body["uuid"])
+    detector_activity = DetectorActivity(body["uuid"])
 
     metadata = body["metadata"] if "metadata" in body else None
-    return detector_agent.checkin(metadata=metadata)
+    return detector_activity.checkin(metadata=metadata)
 
 
 # POST /rssi
@@ -74,20 +74,20 @@ def post_signal():
             uuid=body["beacon_uuid"],
             filter=beacon_filter))
 
-    detector_agent = DetectorAgent(body["detector_uuid"])
-    return detector_agent.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
+    detector_activity = DetectorActivity(body["detector_uuid"])
+    return detector_activity.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
 @get('/detector', is_api=True)
 @serialize_json()
 def get_detector():
-    return DetectorAgent.get_all()
+    return DetectorActivity.get_all()
 
 
 @get('/beacon', is_api=True)
 @serialize_json()
 def get_beacon():
-    return BeaconAgent.get_all()
+    return BeaconActivity.get_all()
 
 
 @post('/training', is_api=True)
@@ -101,16 +101,16 @@ def post_training():
     beacon_uuid = request.json["beacon_uuid"]
     expectation = request.json["expectation"] or None
 
-    training_agent = TrainingAgent()
-    training = training_agent.add(beacon_uuid, expectation=expectation, stale_signal_limit=stale_signal_limit)
+    training_activity = TrainingActivity()
+    training = training_activity.add(beacon_uuid, expectation=expectation, stale_signal_limit=stale_signal_limit)
 
     if training is None:
         abort(404, "No available (non-stale) signals for training beacon.")
 
-    training._data["signals"] = training_agent.get_signals( training )
+    training._data["signals"] = training_activity.get_signals( training )
     training._data["normalized"] = [ ]
 
-    normalized_signals = training_agent.normalize_signals( [ signal.rssi for signal in training._data["signals"] ] )
+    normalized_signals = training_activity.normalize_signals( [ signal.rssi for signal in training._data["signals"] ] )
     for idx, signal in enumerate( training._data["signals"] ):
         training._data["normalized"].append({
             "beacon": signal._data["beacon"],
@@ -135,16 +135,16 @@ def delete_training():
 @delete('/signal', is_api=True)
 @serialize_json()
 def delete_signal():
-    return { "deleted": DetectorAgent.clear_signals() }
+    return { "deleted": DetectorActivity.clear_signals() }
 
 
 @delete('/detector', is_api=True)
 @serialize_json()
 def delete_detector():
-    return { "deleted": DetectorAgent.clear_entities() }
+    return { "deleted": DetectorActivity.clear_entities() }
 
 
 @delete('/beacon', is_api=True)
 @serialize_json()
 def delete_beacon():
-    return { "deleted": BeaconAgent.clear_entities() }
+    return { "deleted": BeaconActivity.clear_entities() }

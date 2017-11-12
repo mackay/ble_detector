@@ -1,6 +1,6 @@
 
 from core.system import SystemBase
-from core.beacon import BeaconAgent
+from core.beacon import BeaconActivity
 from core.models import Signal, Beacon, Detector
 from core.models import Training, TrainingSignal
 from datetime import datetime, timedelta
@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger()
 
 
-class TrainingAgent(SystemBase):
+class TrainingActivity(SystemBase):
 
     def __init__(self):
         super(SystemBase, self).__init__()
@@ -30,7 +30,7 @@ class TrainingAgent(SystemBase):
 
         expectation = expectation or self.get_training_expectation()
 
-        beacon = BeaconAgent(beacon_uuid).get()
+        beacon = BeaconActivity(beacon_uuid).get()
         stale_cutoff_date = datetime.utcnow() - timedelta(seconds=stale_signal_limit)
 
         query = ( Signal.select()
@@ -104,12 +104,12 @@ class TrainingNetwork(object):
         return training_set
 
     def enrich_training_model(self, training):
-        training._data["signals"] = TrainingAgent().get_signals( training )
+        training._data["signals"] = TrainingActivity().get_signals( training )
         training._data["normalized_dbm"] = [ ]
         training._data["normalized_mw"] = [ ]
 
-        normalized_signals_dbm = TrainingAgent().normalize_signals_dbm( [ signal.rssi for signal in training._data["signals"] ] )
-        normalized_signals_mw = TrainingAgent().normalize_signals_mw( [ signal.rssi for signal in training._data["signals"] ] )
+        normalized_signals_dbm = TrainingActivity().normalize_signals_dbm( [ signal.rssi for signal in training._data["signals"] ] )
+        normalized_signals_mw = TrainingActivity().normalize_signals_mw( [ signal.rssi for signal in training._data["signals"] ] )
 
         for idx, signal in enumerate( training._data["signals"] ):
             training._data["normalized_dbm"].append({
@@ -213,7 +213,7 @@ class TrainingNetwork(object):
     def predict(self, signals, detector_sequence=None):
         detector_sequence = detector_sequence or self.get_detector_sequence()
 
-        normalized_signals_dbm = TrainingAgent().normalize_signals_dbm( [ signal.rssi for signal in signals ] )
+        normalized_signals_dbm = TrainingActivity().normalize_signals_dbm( [ signal.rssi for signal in signals ] )
         signal_map = { signal.detector.uuid: normalized_signals_dbm[idx] for idx, signal in enumerate(signals) }
 
         values = [ ]

@@ -13,7 +13,7 @@ class Entity(SystemBase):
         return self.entity_model_cls.get(self.entity_model_cls.uuid == self.uuid)
 
 
-class EntityAgent(Entity):
+class ActiveEntity(Entity):
 
     EntityClass = None
 
@@ -28,7 +28,7 @@ class EntityAgent(Entity):
     def __init__(self, uuid, entity_model_cls=None):
         entity_model_cls = entity_model_cls or self.EntityClass
 
-        super(EntityAgent, self).__init__(uuid, entity_model_cls)
+        super(ActiveEntity, self).__init__(uuid, entity_model_cls)
 
     def checkin(self, metadata=None):
         query = self.entity_model_cls.select().where(self.entity_model_cls.uuid == self.uuid)
