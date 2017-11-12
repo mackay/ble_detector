@@ -1,11 +1,9 @@
 import uuid
 
-from Blit import Color
-
 from datetime import datetime
 
 
-class Pixel(Color):
+class Pixel(object):
 
     RED_INDEX = 0
     GREEN_INDEX = 1
@@ -35,8 +33,9 @@ class Pixel(Color):
                     a=a*255 )
 
     def __init__(self, r=0, g=0, b=0, a=255):
-        super(Pixel, self).__init__(r, g, b, a)
-
+        super(Pixel, self).__init__()
+        self._components = [0] * 4
+        self.set_color(r, g, b, a)
         self.dirty = True
 
     def set_color(self, r, g, b, a=255):
