@@ -36,26 +36,13 @@ class Pixel(object):
         super(Pixel, self).__init__()
         self._components = [0] * 4
         self.set_color(r, g, b, a)
-        self.dirty = True
 
     def set_color(self, r, g, b, a=255):
-
         incoming = r / 255., g / 255., b / 255., a / 255.
-
-        for idx, element in enumerate(incoming):
-            if self._components[idx] != element:
-                self.dirty = True
-
         self._components = incoming
 
     def set_color_n(self, r, g, b, a=1):
-
         incoming = r, g, b, a
-
-        for idx, element in enumerate(incoming):
-            if self._components[idx] != element:
-                self.dirty = True
-
         self._components = incoming
 
     @property
@@ -108,7 +95,7 @@ class Pixel(object):
         if alpha == 0:
             return background
 
-        return incoming * alpha + (1 - alpha) * background
+        return (incoming - background) * alpha + background
 
     def blend(self, other, mask=None, opacity=None, blendfunc=None):
 
