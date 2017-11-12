@@ -279,15 +279,16 @@ class Renderer(DisplayEntity):
 
 
 class World(RenderableContainer):
-    def __init__(self, pixel_count, print_fps=False):
+    def __init__(self, pixel_count, print_fps=False, timing_ms_per_update=33.3):
         super(World, self).__init__(pixel_count)
         self.state = { }
 
         self.run_enable = True
 
         self.timing_previous_frame = datetime.utcnow()
+        self.timing_ms_per_update = timing_ms_per_update
+
         self.timing_lag = 0.0
-        self.timing_ms_per_update = 33.33
         self.timing_elapsed_ms = 0.0
 
         self.print_fps = print_fps
@@ -296,7 +297,7 @@ class World(RenderableContainer):
         for sprite in self.sprites:
             sprite.update_from(self, elapsed_time_ms)
 
-    def run(self, world_frame_callback=None):
+    def run(self, callback=None):
         lag = 0.0
 
         #do at least one update before rendering
@@ -318,8 +319,8 @@ class World(RenderableContainer):
                 self.timing_elapsed_ms += self.timing_ms_per_update
                 lag -= self.timing_ms_per_update
 
-            if world_frame_callback:
-                world_frame_callback(self)
+            if callback:
+                callback(self)
 
             self.render()
 
