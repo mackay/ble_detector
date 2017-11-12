@@ -69,7 +69,7 @@ if __name__ == "__main__":
         scene.add_sprite( Ground(ground_color=Ground.DIRT_COLOR, brightness_variance=0.05) )
 
     if "night" in args.scene:
-        scene.add_sprite( Ground(ground_color=Ground.NIGHT_COLOR, brightness_variance=0.01) )
+        scene.add_sprite( Ground(ground_color=Ground.NIGHT_COLOR, brightness_variance=0.0) )
 
     if "rain" in args.scene:
         scene.add_sprite( Rain(max_drops=10, drop_rate=.1, world_size=PIXELS) )
