@@ -148,14 +148,14 @@ class BeaconAgent(StatefulAgent):
         if self.stale_time_ms is None:
             return
 
-        for key in self.beacons:
+        for key in self.beacons.keys():
             if self.beacons[key]["last_heard_ms"] >= self.stale_time_ms:
                 self.beacons.pop(key)
 
     def get_actable_beacons(self):
         actable = [ ]
 
-        for key in self.beacons:
+        for key in self.beacons.keys():
             if self.beacons[key]["trigger_ms"] <= 0:
                 actable.append(self.beacons[key]["beacon"])
 
