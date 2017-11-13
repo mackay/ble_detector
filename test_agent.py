@@ -2,7 +2,7 @@
 import argparse
 import sys
 import signal
-
+import time
 
 from agent.location import LocationAgent
 from display import World, Pixel
@@ -90,4 +90,4 @@ if __name__ == "__main__":
     world.run()
 
     while world.run_enable and agent.run_enable:
-        pass
+        time.sleep(1)

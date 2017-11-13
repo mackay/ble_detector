@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import sys
+import time
 
 import logging
 log = logging.getLogger()
@@ -103,7 +104,7 @@ if __name__ == "__main__":
     scene.run( world_callback )
 
     while scene.run_enable:
-        pass
+        time.sleep(1)
 
     if profile:
         import pstats

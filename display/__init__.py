@@ -1,9 +1,11 @@
 import uuid
 import threading
+import time
 
 from datetime import datetime
 import logging
 
+from core.system import SYSTEM_IDLE_MIN_MS
 
 
 class WorldRunException(Exception):
@@ -353,6 +355,9 @@ class World(RenderableContainer):
                 callback(self)
 
             self.render()
+
+            if timing_elapsed < SYSTEM_IDLE_MIN_MS:
+                time.sleep(0.001)
 
     def stop(self):
         self.run_enable = False

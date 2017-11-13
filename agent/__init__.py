@@ -1,7 +1,9 @@
 import json
 import threading
+import time
 from datetime import datetime
 
+from core.system import SYSTEM_IDLE_MIN_MS
 from remote.api import API
 
 
@@ -51,13 +53,16 @@ class Agent(object):
 
             #per step timing
             timing_current = datetime.utcnow()
-            elapsed_time = float( (timing_current - timing_previous).microseconds / 1000. )
+            elapsed_time_ms = float( (timing_current - timing_previous).microseconds / 1000. )
             timing_previous = timing_current
 
             #agent process of observe-reason-act
-            self.observe(elapsed_time)
-            self.reason(elapsed_time)
-            self.act(elapsed_time)
+            self.observe(elapsed_time_ms)
+            self.reason(elapsed_time_ms)
+            self.act(elapsed_time_ms)
+
+            if elapsed_time_ms < SYSTEM_IDLE_MIN_MS:
+                time.sleep(0.001)
 
         self._teardown()
 
