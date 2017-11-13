@@ -248,14 +248,6 @@ class Trainer(ClassifierBase):
 
 class Network(ClassifierBase):
 
-    @classmethod
-    def load(cls, input_file):
-        return pickle.load(input_file)
-
-    @classmethod
-    def pickle(cls, network, output_file):
-        pickle.dump(network, open(output_file, 'wb'))
-
     def __init__(self, dimension, trained_network):
         super(Network, self).__init__()
         self.dimension = dimension

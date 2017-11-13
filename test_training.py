@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import argparse
 import sys
+import glob
+import pickle
 
 from core.classifier import Trainer
 from core.models import Signal, Detector
@@ -21,6 +23,12 @@ if __name__ == "__main__":
     parser.add_argument('-v', action="store_true", dest="verbose", default=False,
                         help='Show verbose logging messages')
 
+    parser.add_argument('-p', '--pickle', action="store_true", default=False,
+                        help="Pickle networks to files as [dimension].network")
+
+    parser.add_argument('-l', '--load', action="store_true", default=False,
+                        help="Load pickled networks from files as *.network")
+
     arg = parser.parse_args(sys.argv[1:])
 
     if arg.verbose:
@@ -40,7 +48,15 @@ if __name__ == "__main__":
 
         signals.append(signal)
 
-    networks = Trainer().train()
+    if arg.load:
+        pickled_network_files = glob.glob('*.network')
+        networks = [ pickle.load(open(filename, 'rb')) for filename in pickled_network_files ]
+    else:
+        networks = Trainer().train()
+
+    if arg.pickle:
+        for network in networks:
+            pickle.dump(network, open(network.dimension + ".network", 'wb'))
 
     for network in networks:
         print network.dimension + ": " + str(network.predict(signals))

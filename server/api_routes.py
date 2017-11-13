@@ -9,9 +9,10 @@ from core.models import database
 from core.system import SystemBase
 from core.detector import DetectorActivity
 from core.beacon import BeaconActivity
-from core.classifier import Network, TrainingNetwork, TrainingActivity
+from core.classifier import Network, TrainingActivity
 
 import json
+import pickle
 
 import logging
 log = logging.getLogger()
@@ -25,7 +26,8 @@ def load_networks():
 
     config = get_configuration()
     for network_file_source in config["networks"]:
-        networks.append( Network.load(network_file_source) )
+        with open(network_file_source, 'rb') as network:
+            networks.append( pickle.load(network) )
 
     return networks
 

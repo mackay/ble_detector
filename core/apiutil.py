@@ -2,6 +2,7 @@ from bottle import request, abort
 
 import json
 import datetime
+import glob
 
 from bottle import response
 
@@ -12,7 +13,7 @@ log = logging.getLogger()
 
 
 def get_configuration( config_filename=None ):
-    return { "networks": [ ] }
+    return { "networks": glob.glob('*.network') }
 
 
 def require_fields( field_list ):
