@@ -42,11 +42,10 @@ class API(object):
 
         try:
             response = requests.get(url, params=params)
+            return response.json()
         except:
             if self.ignore_errors:
                 print ("Failed to get beacons")
                 return [ ]
             else:
                 raise
-
-        return response.json()
