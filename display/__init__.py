@@ -1,6 +1,11 @@
 import uuid
+import threading
 
 from datetime import datetime
+
+
+class WorldRunException(Exception):
+    pass
 
 
 class Pixel(object):
@@ -236,6 +241,10 @@ class RenderableContainer(SpriteContainer):
         self.render_last = datetime.utcnow()
         self.render_ms_limit = 1000. / float(fps_limit)
 
+    @property
+    def size(self):
+        return len(self.pixels)
+
     def clear_renderers(self):
         for renderer in self.renderers:
             renderer.destroy()
@@ -279,11 +288,13 @@ class Renderer(DisplayEntity):
 
 
 class World(RenderableContainer):
-    def __init__(self, pixel_count, print_fps=False, timing_ms_per_update=33.3):
+    def __init__(self, pixel_count, print_fps=False, timing_ms_per_update=33.3, enable_threading=True):
         super(World, self).__init__(pixel_count)
         self.state = { }
 
-        self.run_enable = True
+        self.run_enable = False
+        self.run_thread = None
+        self.enable_threading = enable_threading
 
         self.timing_previous_frame = datetime.utcnow()
         self.timing_ms_per_update = timing_ms_per_update
@@ -298,6 +309,22 @@ class World(RenderableContainer):
             sprite.update_from(self, elapsed_time_ms)
 
     def run(self, callback=None):
+        if self.run_enable or self.run_thread:
+            raise WorldRunException("Already running.")
+
+        self.run_enable = True
+
+        if self.enable_threading:
+            t = threading.Thread( name='_run_loop',
+                                  target=self._run_loop,
+                                  args=(callback,),
+                                  kwargs=None )
+            self.run_thread = t
+            t.start()
+        else:
+            self._run_loop(callback)
+
+    def _run_loop(self, callback=None):
         lag = 0.0
 
         #do at least one update before rendering

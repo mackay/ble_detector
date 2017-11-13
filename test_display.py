@@ -24,7 +24,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--virtual', action="store_true", dest="virtual", default=False,
-                        help='Use virtual display')
+                        help='Use pygame display')
     parser.add_argument('--led', action="store_true", dest="led", default=False,
                         help='Use led display')
     parser.add_argument('--text-color', action="store_true", dest="text_color", default=False,
@@ -43,7 +43,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args(sys.argv[1:])
 
-    scene = World(PIXELS, print_fps=args.fps)
+    enable_threading = True
+    if args.virtual:
+        enable_threading = False
+
+    scene = World(PIXELS, print_fps=args.fps, enable_threading=enable_threading)
 
     if args.virtual:
         from display.renderers.virtual import PyGameRenderer
@@ -57,7 +61,6 @@ if __name__ == "__main__":
     if args.text:
         from display.renderers.text import ConsoleRenderer
         scene.add_renderer( ConsoleRenderer(clear_on_render=False) )
-
 
     if "sky" in args.scene:
         scene.add_sprite( Sky(clouds=2, world_size=PIXELS) )
@@ -91,7 +94,6 @@ if __name__ == "__main__":
         profile = profile.Profile(timeunit=100)
         profile.enable()
 
-
     def signal_handler(signal, frame):
         print('\nStopping world run loop\n')
         scene.stop()
@@ -99,6 +101,9 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     scene.run( world_callback )
+
+    while scene.run_enable:
+        pass
 
     if profile:
         import pstats

@@ -257,16 +257,17 @@ class ExpandingSplotches(DynamicSprite):
         super(ExpandingSplotches, self).update_from(world, elapsed_time)
 
         while len(self.get_sprites()) < self.splotch_count:
-            self.add_sprite(self.generate_splotch(len(world.pixels)))
+            self.add_sprite( ExpandingSplotches.generate_splotch(len(world.pixels)) )
 
-    def generate_splotch(self, world_size):
+    @classmethod
+    def generate_splotch(cls, world_size, color=None):
         COLORS = [
             [ 255, 0, 0 ],
             [ 0, 255, 0 ],
             [ 0, 0, 255 ]
         ]
 
-        color = Pixel.from_tuple( COLORS[ randint(0, len(COLORS)-1) ] )
+        color = color or Pixel.from_tuple( COLORS[ randint(0, len(COLORS)-1) ] )
         position = randint(0, world_size)
         radius = randint(0, 2)
         splotch = SolidEdgeSplotch(color, position, radius)

@@ -38,7 +38,7 @@ class API(object):
         url = self.base_url + "/beacon"
 
         params = { "stale_time_ms": stale_time_ms,
-                   "location": True }
+                   "predict": True }
 
         try:
             response = requests.get(url, params=params)
@@ -49,4 +49,4 @@ class API(object):
             else:
                 raise
 
-        return response.json
+        return response.json()

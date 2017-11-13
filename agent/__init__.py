@@ -30,7 +30,7 @@ class Agent(object):
     def _teardown(self):
         pass
 
-    def run(self):
+    def run(self, callback=None):
         if self.run_enable or self.run_thread:
             raise AgentRunException("Agent already running.")
 
@@ -38,12 +38,12 @@ class Agent(object):
 
         t = threading.Thread( name='agent_run_loop',
                               target=self._run_loop,
-                              args=(self),
+                              args=(callback,),
                               kwargs=None )
         self.run_thread = t
         t.start()
 
-    def _run_loop(self):
+    def _run_loop(self, callback=None):
         self._setup()
 
         timing_previous = datetime.utcnow()
@@ -100,14 +100,13 @@ class BeaconAgent(StatefulAgent):
 
     @classmethod
     def _beacon_key(cls, beacon):
-        return str(beacon.id)
+        return str(beacon["uuid"])
 
     @classmethod
     def _beacon_record(cls, beacon):
         return { "beacon": beacon,
-                 "last_heard_ms": 0,
-                 "trigger_ms": 0,
-                 "position": None }
+                 "last_heard_ms": 0.,
+                 "trigger_ms": 0. }
 
     def __init__(self, stale_time_ms=5*1000, trigger_time_ms=500, state={}):
         super(BeaconAgent, self).__init__(state)
@@ -124,6 +123,7 @@ class BeaconAgent(StatefulAgent):
         super(BeaconAgent, self).reason(elapsed_time_ms)
 
         self.clean_stale_beacons()
+        self.update_beacon_life(elapsed_time_ms)
 
     def act(self, elapsed_time_ms):
         super(BeaconAgent, self).act(elapsed_time_ms)
@@ -136,7 +136,8 @@ class BeaconAgent(StatefulAgent):
         if key not in self.beacons:
             self.beacons[key] = BeaconAgent._beacon_record(beacon)
 
-        self.beacons[key]["last_heard_ms"] = 0
+        self.beacons[key]["beacon"] = beacon
+        self.beacons[key]["last_heard_ms"] = 0.
 
     def update_beacon_life(self, elapsed_time_ms):
         for key in self.beacons:
@@ -144,6 +145,9 @@ class BeaconAgent(StatefulAgent):
             self.beacons[key]["trigger_ms"] -= elapsed_time_ms
 
     def clean_stale_beacons(self):
+        if self.stale_time_ms is None:
+            return
+
         for key in self.beacons:
             if self.beacons[key]["last_heard_ms"] >= self.stale_time_ms:
                 self.beacons.pop(key)
