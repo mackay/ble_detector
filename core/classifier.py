@@ -28,35 +28,18 @@ class TrainingActivity(SystemBase):
         return json.loads( self.get_option(SystemBase.TRAINING_KEY) )
 
     def add(self, beacon_uuid, stale_signal_limit=5, expectation=None):
-
         expectation = expectation or self.get_training_expectation()
 
         beacon = BeaconActivity(beacon_uuid).get()
-        stale_cutoff_date = datetime.utcnow() - timedelta(seconds=stale_signal_limit)
-
-        query = ( Signal.select()
-                        .join(Beacon, on=(Beacon.id == Signal.beacon))
-                        .where(Beacon.uuid == beacon_uuid)
-                        .group_by(Signal.beacon, Signal.detector)
-                        .order_by(Signal.date) )
-
-        #get all signals realted to the beacon younger than the stale counter
-        #group them by detector
-        #get the newest of each
-        query = ( Signal.select()
-                        .join(Beacon, on=(Beacon.id == Signal.beacon))
-                        .where(Beacon.uuid == beacon_uuid)
-                        .where(Signal.date > stale_cutoff_date)
-                        .group_by(Signal.beacon, Signal.detector)
-                        .order_by(Signal.date) )
+        signal_slice = BeaconActivity(beacon_uuid).get_signal_slice(stale_time_ms=1000*stale_signal_limit)
 
         #if there aren't enough signals, skip
-        if query.count() < 3:
+        if len(signal_slice) < 3:
             return None
 
         #create the training set if we have enough data
         training = Training.create( beacon=beacon, expectation=expectation )
-        for signal in query:
+        for signal in signal_slice:
             TrainingSignal.create(training=training, signal=signal)
 
         return training
@@ -253,11 +236,6 @@ class Network(ClassifierBase):
         self.dimension = dimension
         self.network = trained_network
 
-    def predict_beacon(self, beacon, signals):
-        signals = [ ]
-        sequence = None
-        return self.predict(signals, detector_sequence=sequence)
-
     def predict(self, signals, detector_sequence=None):
         detector_sequence = detector_sequence or self.get_detector_sequence()
 
@@ -276,4 +254,4 @@ class Network(ClassifierBase):
             log.debug(str(detector_sequence))
             log.debug(str(self.network.predict_proba([values])))
 
-        return self.network.predict([values])
+        return self.network.predict([values])[0]

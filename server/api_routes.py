@@ -102,8 +102,10 @@ def get_detector():
 @serialize_json()
 def get_beacon():
 
+    stale_time_ms = None
     if request.query.stale_time_ms:
-        beacons = BeaconActivity.get_active(request.query.stale_time_ms)
+        stale_time_ms = int(request.query.stale_time_ms)
+        beacons = BeaconActivity.get_active(stale_time_ms)
     else:
         beacons = BeaconActivity.get_all()
 
@@ -116,10 +118,11 @@ def get_beacon():
 
         #run through all networks for all beacons
         for beacon in beacons:
-            beacon._data["predict"] = { }
+            signal_slice = BeaconActivity(beacon.uuid).get_signal_slice(stale_time_ms=stale_time_ms)
 
+            beacon._data["predict"] = { }
             for network in networks:
-                beacon._data["predict"][network.dimension] = network.predict_beacon(beacon)
+                beacon._data["predict"][network.dimension] = network.predict(signal_slice)
 
     return beacons
 
