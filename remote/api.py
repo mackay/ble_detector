@@ -33,3 +33,20 @@ class API(object):
                 print ("Failed to post signal to " + url)
             else:
                 raise
+
+    def get_active_beacons(self, stale_time_ms):
+        url = self.base_url + "/beacon"
+
+        params = { "stale_time_ms": stale_time_ms,
+                   "location": True }
+
+        try:
+            response = requests.get(url, params=params)
+        except:
+            if self.ignore_errors:
+                print ("Failed to get beacons")
+                return [ ]
+            else:
+                raise
+
+        return response.json

@@ -11,6 +11,10 @@ import logging
 log = logging.getLogger()
 
 
+def get_configuration( config_filename=None ):
+    return { "networks": [ ] }
+
+
 def require_fields( field_list ):
     def require_fields_wrapper( func ):
         def require_fields_chain_fn(*args, **kwargs):

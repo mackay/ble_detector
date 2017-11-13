@@ -33,7 +33,6 @@ def checkin(transport, uuid):
     transport.checkin_detector(uuid, metadata=meta)
 
 
-
 def scan_loop(arg):
     transport = None
     if arg.api:

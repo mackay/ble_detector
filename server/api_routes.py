@@ -2,19 +2,32 @@ from bottle import hook
 from bottle import abort
 from bottle import request, post, delete, get
 
-from core.apiutil import require_fields, serialize_json
+from core.apiutil import require_fields, serialize_json, get_configuration
 
 from core.models import database
 
 from core.system import SystemBase
 from core.detector import DetectorActivity
 from core.beacon import BeaconActivity
-from core.training import TrainingNetwork, TrainingActivity
+from core.classifier import Network, TrainingNetwork, TrainingActivity
 
 import json
 
 import logging
 log = logging.getLogger()
+
+
+networks = None
+
+
+def load_networks():
+    networks = [ ]
+
+    config = get_configuration()
+    for network_file_source in config["networks"]:
+        networks.append( Network.load(network_file_source) )
+
+    return networks
 
 
 @hook('before_request')
@@ -25,7 +38,6 @@ def before_request():
 @hook('after_request')
 def after_request():
     database.close()
-
 
 
 # System configuration
@@ -87,7 +99,27 @@ def get_detector():
 @get('/beacon', is_api=True)
 @serialize_json()
 def get_beacon():
-    return BeaconActivity.get_all()
+
+    if request.query.stale_time_ms:
+        beacons = BeaconActivity.get_active(request.query.stale_time_ms)
+    else:
+        beacons = BeaconActivity.get_all()
+
+    if request.query.predict:
+
+        #get the networks if they arent' already there
+        global networks
+        if networks is None:
+            networks = load_networks()
+
+        #run through all networks for all beacons
+        for beacon in beacons:
+            beacon._data["predict"] = { }
+
+            for network in networks:
+                beacon._data["predict"][network.dimension] = network.predict_beacon(beacon)
+
+    return beacons
 
 
 @post('/training', is_api=True)
