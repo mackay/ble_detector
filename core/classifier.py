@@ -5,10 +5,11 @@ from core.models import Signal, Beacon, Detector
 from core.models import Training, TrainingSignal
 from datetime import datetime, timedelta
 
-from sklearn.neural_network import MLPClassifier
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix
 
+import pickle
 import json
 
 import io
@@ -77,7 +78,17 @@ class TrainingActivity(SystemBase):
         return [ float(rssi) / max_rssi for rssi in rssi_list ]
 
 
-class TrainingNetwork(object):
+class ClassifierBase(object):
+
+    def __init__(self):
+        pass
+
+    def get_detector_sequence(self):
+        sequence = [ detector.uuid for detector in Detector.select() ]
+        return sequence
+
+
+class Trainer(ClassifierBase):
 
     @classmethod
     def __default_value_fn(cls, training_entry, signal, signal_index):
@@ -91,7 +102,8 @@ class TrainingNetwork(object):
         return signal_removal_count
 
     def __init__(self):
-        self.network = None
+        super(Trainer, self).__init__()
+        self.networks = None
 
     def get_training_data(self):
         training_set = [ ]
@@ -147,7 +159,7 @@ class TrainingNetwork(object):
         return output.getvalue()
 
     def get_training_slices(self, value_fn=None, detector_sequence=None):
-        value_fn = value_fn or TrainingNetwork.__default_value_fn
+        value_fn = value_fn or Trainer.__default_value_fn
         detector_sequence = detector_sequence or self.get_detector_sequence()
         slices = [ ]
 
@@ -172,43 +184,87 @@ class TrainingNetwork(object):
 
         return slices
 
-    def get_detector_sequence(self):
-        sequence = [ detector.uuid for detector in Detector.select() ]
-        return sequence
+    def _get_dimensions(self, training_slices):
+        dimensions = set({})
 
-    def train(self, pickled_source=None):
+        for training_slice in training_slices:
+            for key in training_slice["expectation"]:
+                dimensions.add(key)
+
+        return list(dimensions)
+
+    def _filter_slices_to_dimension(self, training_slices, dimension):
+        return [ training_slice for training_slice in training_slices if dimension in training_slice["expectation"] ]
+
+    def train(self):
+        networks = [ ]
+
         training_slices = self.get_training_slices()
-        input_set = [ _slice["values"] for _slice in training_slices ]
-        output_set = [ _slice["expectation"]["location"] for _slice in training_slices ]
-        self.network = MLPClassifier(solver='lbfgs',
+        for dimension in self._get_dimensions(training_slices):
+            dimension_training_slices = self._filter_slices_to_dimension(training_slices, dimension)
+
+            input_set = [ _slice["values"] for _slice in dimension_training_slices ]
+            output_set = [ _slice["expectation"][dimension] for _slice in dimension_training_slices ]
+
+            if "_regression" in dimension:
+                network_class = MLPRegressor
+                hidden_layer_sizes = (100,)
+            else:
+                network_class = MLPClassifier
+
+                unique_outputs = set([ output for output in output_set ])
+                hidden_layer_sizes = (25 + len(unique_outputs), )
+
+            network = network_class( solver='lbfgs',
                                      alpha=1e-5,
-                                     hidden_layer_sizes=(10),
+                                     hidden_layer_sizes=hidden_layer_sizes,
                                      random_state=1,
                                      max_iter=10000)
 
-        if log.getEffectiveLevel() <= logging.DEBUG:
-            for idx, input_data in enumerate(input_set):
-                log.debug( str(training_slices[idx]["entry"].id) + " :: " + output_set[idx] + " :: " + str(input_data) )
+            if log.getEffectiveLevel() <= logging.DEBUG:
+                for idx, input_data in enumerate(input_set):
+                    log.debug( str(dimension_training_slices[idx]["entry"].id) + " :: " + output_set[idx] + " :: " + str(input_data) )
+
+            network.fit(input_set, output_set)
+
+            if log.getEffectiveLevel() <= logging.DEBUG:
+
+                alt_input_set, alt_input_test, alt_output_set, alt_output_test = train_test_split(input_set, output_set)
+                predictions = network.predict(alt_input_test)
+
+                log.debug("Sampled subset")
+                log.debug( "\n" + str(confusion_matrix(alt_output_test, predictions)) )
+                log.debug( "\n" + str(classification_report(alt_output_test, predictions)) )
+
+                predictions = network.predict(input_set)
+                log.debug("Full dataset")
+                log.debug( "\n" + str(confusion_matrix(output_set, predictions)) )
+                log.debug( "\n" + str(classification_report(output_set, predictions)) )
+
+            networks.append( Network(dimension, network) )
+
+        return networks
 
 
-        self.network.fit(input_set, output_set)
+class Network(ClassifierBase):
 
-        if log.getEffectiveLevel() <= logging.DEBUG:
+    @classmethod
+    def load(cls, input_file):
+        return pickle.load(input_file)
 
-            alt_input_set, alt_input_test, alt_output_set, alt_output_test = train_test_split(input_set, output_set)
-            predictions = self.network.predict(alt_input_test)
+    @classmethod
+    def pickle(cls, network, output_file):
+        pickle.dump(network, open(output_file, 'wb'))
 
-            log.debug("Sampled subset")
-            log.debug( "\n" + str(confusion_matrix(alt_output_test, predictions)) )
-            log.debug( "\n" + str(classification_report(alt_output_test, predictions)) )
+    def __init__(self, dimension, trained_network):
+        super(Network, self).__init__()
+        self.dimension = dimension
+        self.network = trained_network
 
-            predictions = self.network.predict(input_set)
-            log.debug("Full dataset")
-            log.debug( "\n" + str(confusion_matrix(output_set, predictions)) )
-            log.debug( "\n" + str(classification_report(output_set, predictions)) )
-
-
-
+    def predict_beacon(self, beacon, signals):
+        signals = [ ]
+        sequence = None
+        return self.predict(signals, detector_sequence=sequence)
 
     def predict(self, signals, detector_sequence=None):
         detector_sequence = detector_sequence or self.get_detector_sequence()

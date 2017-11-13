@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from core.training import TrainingNetwork
+from core.classifier import Trainer
 from core.models import Signal, Detector
 
 import logging
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
         signals.append(signal)
 
-    network = TrainingNetwork()
-    network.train()
+    networks = Trainer().train()
 
-    print network.predict(signals)
+    for network in networks:
+        print network.dimension + ": " + str(network.predict(signals))
