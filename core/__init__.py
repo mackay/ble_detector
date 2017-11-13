@@ -1,0 +1,2 @@
+
+IDLE_MIN_MS = 1

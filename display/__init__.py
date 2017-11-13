@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import logging
 
-from core.system import SYSTEM_IDLE_MIN_MS
+from core import IDLE_MIN_MS
 
 
 class WorldRunException(Exception):
@@ -356,7 +356,7 @@ class World(RenderableContainer):
 
             self.render()
 
-            if timing_elapsed < SYSTEM_IDLE_MIN_MS:
+            if timing_elapsed < IDLE_MIN_MS:
                 time.sleep(0.001)
 
     def stop(self):

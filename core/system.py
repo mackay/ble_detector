@@ -1,8 +1,6 @@
 from bunch import Bunch
 from core.models import SystemOption
 
-SYSTEM_IDLE_MIN_MS = 1
-
 
 class SystemBase(object):
 

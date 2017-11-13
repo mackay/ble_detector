@@ -3,7 +3,7 @@ import threading
 import time
 from datetime import datetime
 
-from core.system import SYSTEM_IDLE_MIN_MS
+from core import IDLE_MIN_MS
 from remote.api import API
 
 
@@ -61,7 +61,7 @@ class Agent(object):
             self.reason(elapsed_time_ms)
             self.act(elapsed_time_ms)
 
-            if elapsed_time_ms < SYSTEM_IDLE_MIN_MS:
+            if elapsed_time_ms < IDLE_MIN_MS:
                 time.sleep(0.001)
 
         self._teardown()
