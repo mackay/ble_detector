@@ -32,13 +32,13 @@ class NeoPixelRenderer(Renderer):
                                         LED_BRIGHTNESS,
                                         LED_CHANNEL,
                                         self.led_strip)
-
         self.strip.begin()
+        self.log.debug("LED strip initialized")
 
         for idx in range(0, pixel_count):
             self.strip.setPixelColorRGB(idx, 0, 0, 0, 0)
-
         self.strip.show()
+        self.log.debug("LED strip cleared")
 
     def render_buffer(self, pixel_buffer):
         super(NeoPixelRenderer, self).render_buffer(pixel_buffer)
