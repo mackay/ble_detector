@@ -104,7 +104,7 @@ def get_beacon():
 
     stale_time_ms = None
     if request.query.stale_time_ms:
-        stale_time_ms = int(request.query.stale_time_ms)
+        stale_time_ms = float(request.query.stale_time_ms)
         beacons = BeaconActivity.get_active(stale_time_ms)
     else:
         beacons = BeaconActivity.get_all()

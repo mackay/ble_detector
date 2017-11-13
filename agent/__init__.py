@@ -51,7 +51,7 @@ class Agent(object):
 
             #per step timing
             timing_current = datetime.utcnow()
-            elapsed_time = (timing_current - timing_previous).microseconds / 1000.
+            elapsed_time = float( (timing_current - timing_previous).microseconds / 1000. )
             timing_previous = timing_current
 
             #agent process of observe-reason-act
@@ -115,6 +115,12 @@ class BeaconAgent(StatefulAgent):
         self.trigger_time_ms = trigger_time_ms
         self.stale_time_ms = stale_time_ms
 
+        if self.stale_time_ms:
+            self.stale_time_ms = float(self.stale_time_ms)
+
+        if self.trigger_time_ms:
+            self.trigger_time_ms = float(self.trigger_time_ms)
+
     def _setup(self):
         self.trigger_time_ms = self._value_from_state("trigger_time_ms", self.trigger_time_ms)
         self.stale_time_ms = self._value_from_state("stale_time_ms", self.stale_time_ms)
@@ -140,7 +146,7 @@ class BeaconAgent(StatefulAgent):
         self.beacons[key]["last_heard_ms"] = 0.
 
     def update_beacon_life(self, elapsed_time_ms):
-        for key in self.beacons:
+        for key in self.beacons.keys():
             self.beacons[key]["last_heard_ms"] += elapsed_time_ms
             self.beacons[key]["trigger_ms"] -= elapsed_time_ms
 
