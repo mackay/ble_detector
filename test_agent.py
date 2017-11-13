@@ -33,6 +33,9 @@ if __name__ == "__main__":
     parser.add_argument('--text', action="store_true", dest="text", default=False,
                         help='Use text display')
 
+    parser.add_argument('-r', '--rate', type=int, default=500,
+                        help="trigger display rate in ms for each active beacon (affects sprite creation, smaller number = more sprites)")
+
     parser.add_argument('url', type=str, help="base api url in the form of http[s]://host:port/api")
 
     arg = parser.parse_args(sys.argv[1:])
@@ -48,9 +51,7 @@ if __name__ == "__main__":
                 location_color_map[map_tuple[0]] = Pixel( int(map_tuple[1]),
                                                           int(map_tuple[2]),
                                                           int(map_tuple[3]) )
-
                 map_tuple = [ ]
-
 
     enable_threading = True
     if arg.virtual:
@@ -75,7 +76,8 @@ if __name__ == "__main__":
     agent = LocationAgent( arg.url,
                            world,
                            location_color_map=location_color_map,
-                           stale_time_ms=arg.stale )
+                           stale_time_ms=arg.stale,
+                           trigger_time_ms=arg.rate )
 
     def signal_handler(signal, frame):
         print('\nStopping world run loop\n')
