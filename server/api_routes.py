@@ -9,9 +9,8 @@ from core.models import database
 from core.system import SystemBase
 from core.detector import DetectorActivity
 from core.beacon import BeaconActivity
-from core.classifier import Network, TrainingActivity
+from core.classifier import Trainer, TrainingActivity
 
-import json
 import pickle
 
 import logging
@@ -147,7 +146,7 @@ def post_training():
     training._data["signals"] = training_activity.get_signals( training )
     training._data["normalized"] = [ ]
 
-    normalized_signals = training_activity.normalize_signals( [ signal.rssi for signal in training._data["signals"] ] )
+    normalized_signals = training_activity.normalize_signals_dbm( [ signal.rssi for signal in training._data["signals"] ] )
     for idx, signal in enumerate( training._data["signals"] ):
         training._data["normalized"].append({
             "beacon": signal._data["beacon"],
@@ -159,14 +158,14 @@ def post_training():
 
 @get('/training', is_api=True)
 def get_training():
-    return TrainingNetwork().get_training_csv()
+    return Trainer().get_training_csv()
 
 
 # DELETE Resources
 @delete('/training', is_api=True)
 @serialize_json()
 def delete_training():
-    return { "deleted": TrainingNetwork.clear_training() }
+    return { "deleted": Trainer.clear_training() }
 
 
 @delete('/signal', is_api=True)

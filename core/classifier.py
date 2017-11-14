@@ -27,14 +27,14 @@ class TrainingActivity(SystemBase):
     def get_training_expectation(self):
         return json.loads( self.get_option(SystemBase.TRAINING_KEY) )
 
-    def add(self, beacon_uuid, stale_signal_limit=5, expectation=None):
+    def add(self, beacon_uuid, stale_signal_limit=5, expectation=None, max_beacons=1):
         expectation = expectation or self.get_training_expectation()
 
         beacon = BeaconActivity(beacon_uuid).get()
         signal_slice = BeaconActivity(beacon_uuid).get_signal_slice(stale_time_ms=1000*stale_signal_limit)
 
         #if there aren't enough signals, skip
-        if len(signal_slice) < 3:
+        if len(signal_slice) < max_beacons:
             return None
 
         #create the training set if we have enough data
@@ -252,6 +252,8 @@ class Network(ClassifierBase):
         if log.getEffectiveLevel() <= logging.DEBUG:
             log.debug(str(values))
             log.debug(str(detector_sequence))
-            log.debug(str(self.network.predict_proba([values])))
+
+            if isinstance(self.network, MLPClassifier):
+                log.debug(str(self.network.predict_proba([values])))
 
         return self.network.predict([values])[0]
