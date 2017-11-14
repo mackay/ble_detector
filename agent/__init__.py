@@ -60,7 +60,7 @@ class Agent(object):
             self.reason(elapsed_time_ms)
             self.act(elapsed_time_ms)
 
-            if elapsed_time_ms < IDLE_MIN_MS:
+            if elapsed_time_ms < float(IDLE_MIN_MS):
                 time.sleep(0.001)
 
         self._teardown()
@@ -82,7 +82,7 @@ class Agent(object):
 
 class StatefulAgent(Agent):
 
-    STATE_RUN_TIME_HRS = "runtime_hrs"
+    STATE_RUN_TIME_MS = "runtime_ms"
     STATE_UUID = "uuid"
 
     def __init__(self, uuid, initial_state={}):
@@ -107,7 +107,7 @@ class StatefulAgent(Agent):
         self.state[key] = value
 
     def _setup(self):
-        self._set_state(StatefulAgent.STATE_RUN_TIME_HRS, 0)
+        self._set_state(StatefulAgent.STATE_RUN_TIME_MS, 0)
 
     def reason(self, elapsed_time_ms):
         super(StatefulAgent, self).reason(elapsed_time_ms)
@@ -115,9 +115,9 @@ class StatefulAgent(Agent):
         self._increment_runtime(elapsed_time_ms)
 
     def _increment_runtime(self, elapsed_time_ms):
-        elapsed_hrs = self._get_state(StatefulAgent.STATE_RUN_TIME_HRS, 0)
-        elapsed_hrs += float(elapsed_time_ms) / 1000 / 60 / 60
-        self._set_state(StatefulAgent.STATE_RUN_TIME_HRS, elapsed_hrs)
+        elapsed_ms = self._get_state(StatefulAgent.STATE_RUN_TIME_MS, 0)
+        elapsed_ms += float(elapsed_time_ms)
+        self._set_state(StatefulAgent.STATE_RUN_TIME_MS, elapsed_ms)
 
 
 class BeaconAgent(StatefulAgent):
@@ -234,7 +234,9 @@ class HTTPBeaconAgent(BeaconAgent):
 
         if self.checkin_trigger_ms <= 0:
             self.checkin()
-            self.checkin_trigger_ms = self.refresh_max_rate_ms * 10
+            self.checkin_trigger_ms = self.refresh_max_rate_ms * 10.
+
+        self.checkin_trigger_ms -= elapsed_time_ms
 
     def checkin(self):
         self.api.checkin_agent(self.uuid, metadata=self.state)

@@ -120,9 +120,9 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-6">ID</th>
-                        <th class="col-sm-4">Last Heard</th>
-                        <th class="col-sm-4">Time Active (hrs)</th>
+                        <th class="col-sm-8">ID</th>
+                        <th class="col-sm-3">Last Heard</th>
+                        <th class="col-sm-3">Uptime</th>
                     </tr>
                 </thead>
 

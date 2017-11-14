@@ -20,6 +20,19 @@ format_datetime = function(utc_date_string) {
     return moment.utc(utc_date_string).local().format("YYYY-MM-DD HH:mm:ss");
 };
 
+format_ms_duration = function(duration) {
+    var milliseconds = parseInt((duration%1000)/100, 10);
+    var seconds = parseInt((duration/1000)%60, 10);
+    var minutes = parseInt((duration/(1000*60))%60, 10);
+    var hours = parseInt((duration/(1000*60*60))%24, 10);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+};
+
 API = my.Class(pinocchio.Service, {
     constructor: function(base_url) {
         API.Super.call(this, base_url, new pinocchio.security.PassiveSecurity() );
@@ -232,14 +245,14 @@ ViewManager = my.Class({
                     "<tr>" +
                     "    <td>(<%- id %>) <%- uuid %></td>" +
                     "    <td><%- last_active %></td>" +
-                    "    <td><%- runtime_hrs %></td>" +
+                    "    <td><%- runtime %></td>" +
                     "</tr>");
 
             $tbody.empty();
             _.each(list, function(item) {
-                item.runtime_hrs = "unknown";
-                if( item.metadata && item.metadata.runtime_hrs ) {
-                    item.runtime_hrs = item.metadata.runtime_hrs;
+                item.runtime = "unknown";
+                if( item.metadata && item.metadata.runtime_ms ) {
+                    item.runtime = format_ms_duration( parseFloat(item.metadata.runtime_ms) );
                 }
 
                 item.last_active = format_datetime(item.last_active);
