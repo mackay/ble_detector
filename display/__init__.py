@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import logging
 
-from core import IDLE_MIN_MS
+from core.time import IDLE_MIN_MS
 
 
 class WorldRunException(Exception):

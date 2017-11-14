@@ -3,7 +3,7 @@ import threading
 import time
 from datetime import datetime
 
-from core import IDLE_MIN_MS
+from core.time import IDLE_MIN_MS
 from remote.api import API
 
 
