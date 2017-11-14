@@ -120,7 +120,8 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-8">ID</th>
+                        <th class="col-sm-5">ID</th>
+                        <th class="col-sm-3">Sprite Count</th>
                         <th class="col-sm-3">Last Heard</th>
                         <th class="col-sm-3">Uptime</th>
                     </tr>

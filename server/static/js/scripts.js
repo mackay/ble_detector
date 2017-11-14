@@ -244,6 +244,7 @@ ViewManager = my.Class({
             var template = _.template(
                     "<tr>" +
                     "    <td>(<%- id %>) <%- uuid %></td>" +
+                    "    <td><%- sprite_count %></td>" +
                     "    <td><%- last_active %></td>" +
                     "    <td><%- runtime %></td>" +
                     "</tr>");
@@ -251,8 +252,16 @@ ViewManager = my.Class({
             $tbody.empty();
             _.each(list, function(item) {
                 item.runtime = "unknown";
-                if( item.metadata && item.metadata.runtime_ms ) {
-                    item.runtime = format_ms_duration( parseFloat(item.metadata.runtime_ms) );
+                item.sprite_count = "n/a";
+
+                if( item.metadata ) {
+                    if( item.metadata.runtime_ms ) {
+                        item.runtime = format_ms_duration( parseFloat(item.metadata.runtime_ms) );
+                    }
+
+                    if( item.metadata.sprite_count ) {
+                        item.sprite_count = item.metadata.sprite_count;
+                    }
                 }
 
                 item.last_active = format_datetime(item.last_active);
