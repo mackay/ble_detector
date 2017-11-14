@@ -296,6 +296,9 @@ class Renderer(DisplayEntity):
         super(Renderer, self).__init__()
 
         self.previous_buffer = None
+        self.skip_checks_after_change = True
+        self.skip_frames = 30
+        self.skip_counter = 0
 
     def setup(self, pixel_count, world):
         pass
@@ -303,7 +306,15 @@ class Renderer(DisplayEntity):
     def _copy_to_previous_buffer(self, pixel_buffer):
         self.previous_buffer = [ pixel.copy() for pixel in pixel_buffer ]
 
+        if self.skip_checks_after_change:
+            self.skip_counter = self.skip_frames
+
     def _is_buffer_changed(self, pixel_buffer):
+
+        if self.skip_counter > 0:
+            self.skip_counter -= 1
+            return True
+
         #if our historic buffer isn't the same...
         if self.previous_buffer is None or len(self.previous_buffer) != len(pixel_buffer):
             self._copy_to_previous_buffer(pixel_buffer)
