@@ -43,7 +43,7 @@ class NeoPixelRenderer(Renderer):
     def render_buffer(self, pixel_buffer):
         super(NeoPixelRenderer, self).render_buffer(pixel_buffer)
 
-        if self.is_buffer_changed(pixel_buffer):
+        if self._is_buffer_changed(pixel_buffer):
             for idx, pixel in enumerate(pixel_buffer):
                 self.strip.setPixelColorRGB(idx, int(pixel.r), int(pixel.g), int(pixel.b))  # , int(pixel.w))
 

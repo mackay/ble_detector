@@ -37,7 +37,7 @@ class PyGameRenderer(Renderer):
 
         self.__process_pygame_events()
 
-        if self.is_buffer_changed(pixel_buffer):
+        if self._is_buffer_changed(pixel_buffer):
             pixel_width = self.width / len(pixel_buffer)
             pixel_height = self.height
 

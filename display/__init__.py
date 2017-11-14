@@ -300,17 +300,19 @@ class Renderer(DisplayEntity):
     def setup(self, pixel_count, world):
         pass
 
-    def is_buffer_changed(self, pixel_buffer):
+    def _copy_to_previous_buffer(self, pixel_buffer):
+        self.previous_buffer = [ pixel.copy() for pixel in pixel_buffer ]
+
+    def _is_buffer_changed(self, pixel_buffer):
         #if our historic buffer isn't the same...
         if self.previous_buffer is None or len(self.previous_buffer) != len(pixel_buffer):
-            self.previous_buffer = pixel_buffer
+            self._copy_to_previous_buffer(pixel_buffer)
             return True
 
         #if we find a difference in the historic buffer...
         for idx, pixel in enumerate(pixel_buffer):
             if pixel != self.previous_buffer[idx]:
-
-                self.previous_buffer = pixel_buffer
+                self._copy_to_previous_buffer(pixel_buffer)
                 return True
 
         return False
