@@ -36,6 +36,9 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--rate', type=int, default=500,
                         help="trigger display rate in ms for each active beacon (affects sprite creation, smaller number = more sprites)")
 
+    parser.add_argument('-u', '--uuid', type=str, default="room location reaction",
+                        help="identifier string for this agent")
+
     parser.add_argument('url', type=str, help="base api url in the form of http[s]://host:port/api")
 
     arg = parser.parse_args(sys.argv[1:])
@@ -73,7 +76,8 @@ if __name__ == "__main__":
         from display.renderers.text import ConsoleRenderer
         world.add_renderer( ConsoleRenderer(clear_on_render=False) )
 
-    agent = LocationAgent( arg.url,
+    agent = LocationAgent( arg.uuid,
+                           arg.url,
                            world,
                            location_color_map=location_color_map,
                            stale_time_ms=arg.stale,
