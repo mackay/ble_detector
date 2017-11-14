@@ -88,7 +88,7 @@ class StatefulAgent(Agent):
     def __init__(self, uuid, initial_state={}):
         super(StatefulAgent, self).__init__(uuid)
         self.state = initial_state
-        self._set_state(STATE_UUID, self.uuid)
+        self._set_state(StatefulAgent.STATE_UUID, self.uuid)
 
     def load_state_from_file(self, json_file_path):
         json_data = open(json_file_path)
