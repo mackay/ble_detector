@@ -42,6 +42,9 @@ API = my.Class(pinocchio.Service, {
     get_detectors: function(callback) {
         this.get("/detector", "", callback, this._general_failure);
     },
+    get_agents: function(callback) {
+        this.get("/agent", "", callback, this._general_failure);
+    },
 
     create_training_entry: function(beacon_uuid, expectation, callback) {
         this.post("/training", "", JSON.stringify({"beacon_uuid": beacon_uuid, "expectation": expectation}), callback, this._general_failure);
@@ -129,6 +132,7 @@ ViewManager = my.Class({
     load: function() {
         this.load_beacons();
         this.load_detectors();
+        this.load_agents();
     },
 
     load_beacons: function() {
@@ -215,6 +219,37 @@ ViewManager = my.Class({
         });
     },
     add_detector_hooks: function() {
+    },
+
+    load_agents: function() {
+
+        var manager = this;
+
+        this.api.get_agents(function(list) {
+            var $tbody = $(".section.agent table tbody");
+
+            var template = _.template(
+                    "<tr>" +
+                    "    <td>(<%- id %>) <%- uuid %></td>" +
+                    "    <td><%- last_active %></td>" +
+                    "    <td><%- runtime_hrs %></td>" +
+                    "</tr>");
+
+            $tbody.empty();
+            _.each(list, function(item) {
+                item.runtime_hrs = "unknown";
+                if( item.metadata && item.metadata.runtime_hrs ) {
+                    item.runtime_hrs = item.metadata.runtime_hrs;
+                }
+
+                item.last_active = format_datetime(item.last_active);
+                $tbody.append(template(item));
+            });
+
+            manager.add_agent_hooks();
+        });
+    },
+    add_agent_hooks: function() {
 
     }
 });

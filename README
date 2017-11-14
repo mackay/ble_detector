@@ -14,4 +14,4 @@ python ./start_server.py --host 192.168.25.66 --port 8080
 
 # Agent reacting to locations
 
-sudo python ./test_agent.py --led --rate 1000 --map bed,255,0,0,dining,0,255,0,living,0,0,255 http://192.168.25.66:8080/api
+sudo python ./test_agent.py --led --rate 1000 --stale 1000 --map bed,155,10,54,dining,0,255,0,living,0,0,255 http://192.168.25.66:8080/api

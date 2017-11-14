@@ -114,32 +114,19 @@
                 <tbody></tbody>
             </table>
         </div>
-        <div class="section">
-            <h2>Actors</h2>
+        <div class="section agent">
+            <h2>Agents</h2>
 
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-5">ID</th>
-                        <th class="col-sm-3">Beacons</th>
-                        <th class="col-sm-3">Last Heard</th>
-                        <th class="col-sm-3">Time Active</th>
+                        <th class="col-sm-6">ID</th>
+                        <th class="col-sm-4">Last Heard</th>
+                        <th class="col-sm-4">Time Active (hrs)</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <tr>
-                        <td>Lower Walkway</td>
-                        <td><a href="#">3 Recent</a>, <a href="#">4 All Time</a></td>
-                        <td>2017-10-12 12:33:04</td>
-                        <td>00:23:20</td>
-                    </tr>
-                    <tr>
-                        <td>Upper Walkway</td>
-                        <td><a href="#">3 Recent</a>, <a href="#">4 All Time</a></td>
-                        <td>2017-10-12 12:32:34</td>
-                        <td>00:10:30</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -150,6 +137,7 @@
             <div class="btn btn-danger" resource="signal">Delete Signal Data</div>
             <div class="btn btn-danger" resource="beacon">Delete Beacon Data</div>
             <div class="btn btn-danger" resource="detector">Delete Detector Data</div>
+            <div class="btn btn-danger" resource="agent">Delete Agent Data</div>
     </div>
     <!-- /.container -->
 
