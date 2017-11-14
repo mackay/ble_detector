@@ -37,19 +37,20 @@ class PyGameRenderer(Renderer):
 
         self.__process_pygame_events()
 
-        pixel_width = self.width / len(pixel_buffer)
-        pixel_height = self.height
+        if self.is_buffer_changed(pixel_buffer):
+            pixel_width = self.width / len(pixel_buffer)
+            pixel_height = self.height
 
-        for idx, pixel in enumerate(pixel_buffer):
-            pygame.draw.rect( self.background,
-                              self.__to_color(pixel),
-                              ( idx*pixel_width, 0,
-                                pixel_width, pixel_height) )
+            for idx, pixel in enumerate(pixel_buffer):
+                pygame.draw.rect( self.background,
+                                  self.__to_color(pixel),
+                                  ( idx*pixel_width, 0,
+                                    pixel_width, pixel_height) )
 
-            # self.background.set_at((0, idx), self.__to_color(pixel))
+                # self.background.set_at((0, idx), self.__to_color(pixel))
 
-        self.screen.blit(self.background, (0, 0))
-        pygame.display.flip()
+            self.screen.blit(self.background, (0, 0))
+            pygame.display.flip()
 
     def __to_color(self, pixel):
         return (pixel.r, pixel.g, pixel.b, pixel.a)

@@ -60,8 +60,8 @@ class Agent(object):
             self.reason(elapsed_time_ms)
             self.act(elapsed_time_ms)
 
-            if elapsed_time_ms < float(IDLE_MIN_MS):
-                time.sleep(0.001)
+            if elapsed_time_ms < IDLE_MIN_MS:
+                time.sleep(IDLE_MIN_MS / 1000)
 
         self._teardown()
 

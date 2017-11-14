@@ -10,6 +10,8 @@ from display import World
 from display.atmosphere import Sky, Stars, Ground, Rain, CloudCover
 from display.atmosphere import ExpandingSplotches
 
+from core.profile import start_profiler, stop_profiler
+
 import signal
 
 
@@ -87,31 +89,19 @@ if __name__ == "__main__":
     if "expand" in args.scene:
         scene.add_sprite( ExpandingSplotches() )
 
-    profile = None
-    if args.profiler:
-        print "starting profiler"
-        import cProfile as profile
-
-        profile = profile.Profile(timeunit=100)
-        profile.enable()
 
     def signal_handler(signal, frame):
         print('\nStopping world run loop\n')
         scene.stop()
-
     signal.signal(signal.SIGINT, signal_handler)
 
-    scene.run( world_callback )
+    #track activity if option is set
+    profiler = start_profiler() if args.profiler else None
 
+    scene.run( world_callback )
     while scene.run_enable:
         time.sleep(1)
 
-    if profile:
-        import pstats
-        profile.disable()
-
-        sortby = 'cumulative'
-        ps = pstats.Stats(profile).sort_stats(sortby)
-
-        ps.print_stats(0.25)
-        ps.dump_stats("./profile.pf")
+    #if we're tracking activity, stop
+    if profiler:
+        stop_profiler(profiler)

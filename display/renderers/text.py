@@ -22,7 +22,9 @@ class LogRenderer(Renderer):
 
     def render_buffer(self, pixel_buffer):
         super(LogRenderer, self).render_buffer(pixel_buffer)
-        self.logger.log(self.log_level, pixels_to_bw(pixel_buffer))
+
+        if self.is_buffer_changed(pixel_buffer):
+            self.logger.log(self.log_level, pixels_to_bw(pixel_buffer))
 
 
 class TextRenderer(Renderer):
@@ -39,7 +41,9 @@ class TextRenderer(Renderer):
             self._clear()
 
         self._home()
-        self._render_text(pixel_buffer)
+
+        if self.is_buffer_changed(pixel_buffer):
+            self._render_text(pixel_buffer)
 
     def _clear(self):
         sys.stderr.write("\x1b[2J")

@@ -8,6 +8,8 @@ from agent.location import LocationAgent
 from display import World, Pixel
 from display.atmosphere import Ground
 
+from core.profile import start_profiler, stop_profiler
+
 import logging
 log = logging.getLogger()
 
@@ -38,6 +40,9 @@ if __name__ == "__main__":
 
     parser.add_argument('-u', '--uuid', type=str, default="room location reaction",
                         help="identifier string for this agent")
+
+    parser.add_argument('--profiler', action="store_true", dest="profiler", default=False,
+                        help='Run timing profiler')
 
     parser.add_argument('url', type=str, help="base api url in the form of http[s]://host:port/api")
 
@@ -87,11 +92,17 @@ if __name__ == "__main__":
         print('\nStopping world run loop\n')
         agent.stop()
         world.stop()
-
     signal.signal(signal.SIGINT, signal_handler)
+
+    #track activity if option is set
+    profiler = start_profiler() if arg.profiler else None
 
     agent.run()
     world.run()
 
     while world.run_enable and agent.run_enable:
-        time.sleep(1)
+        time.sleep(1.0)
+
+    #if we're tracking activity, stop
+    if profiler:
+        stop_profiler(profiler)

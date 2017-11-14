@@ -144,6 +144,16 @@ class Pixel(object):
     def __str__(self):
         return self.__repr__()
 
+    def __eq__(self, other):
+        for i in range(0, len(self._components)):
+            if self._components[i] != other._components[i]:
+                return False
+
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class DisplayEntity(object):
     def __init__(self):
@@ -285,8 +295,25 @@ class Renderer(DisplayEntity):
     def __init__(self):
         super(Renderer, self).__init__()
 
+        self.previous_buffer = None
+
     def setup(self, pixel_count, world):
         pass
+
+    def is_buffer_changed(self, pixel_buffer):
+        #if our historic buffer isn't the same...
+        if self.previous_buffer is None or len(self.previous_buffer) != len(pixel_buffer):
+            self.previous_buffer = pixel_buffer
+            return True
+
+        #if we find a difference in the historic buffer...
+        for idx, pixel in enumerate(pixel_buffer):
+            if pixel != self.previous_buffer[idx]:
+
+                self.previous_buffer = pixel_buffer
+                return True
+
+        return False
 
     def render_buffer(self, pixel_buffer):
         pass
@@ -357,7 +384,7 @@ class World(RenderableContainer):
             self.render()
 
             if timing_elapsed < IDLE_MIN_MS:
-                time.sleep(0.001)
+                time.sleep(IDLE_MIN_MS / 1000.)
 
     def stop(self):
         self.run_enable = False
