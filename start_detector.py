@@ -9,7 +9,8 @@ import sys
 import uuid
 import os
 
-from remote.scan import get_scanner, ANSI_RED, ANSI_OFF
+from remote.scan import get_scanner, run_scan
+from remote.scan import ANSI_RED, ANSI_OFF
 from remote.api import API
 
 CHECKIN_LOOPS = 10
@@ -52,7 +53,7 @@ def scan_loop(arg):
 
     keep_looping = True
     while keep_looping:
-        scanner.scan( float(arg.timeout) / 1000 )
+        run_scan(scanner, arg.timeout)
 
         if arg.loops > 0:
             arg.loops -= 1
@@ -96,6 +97,7 @@ def main():
     arg = parser.parse_args(sys.argv[1:])
 
     scan_loop(arg)
+
 
 if __name__ == "__main__":
     main()

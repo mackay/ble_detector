@@ -75,3 +75,10 @@ def get_scanner(uuid, transport=None, interface=0, verbose=False, opts=Bunch()):
     btle.Debugging = verbose
     scanner = btle.Scanner( interface ).withDelegate( ScanDetectorDelegate(uuid, transport, opts) )
     return scanner
+
+
+def run_scan(scanner, timeout):
+    try:
+        scanner.scan( float(timeout) / 1000 )
+    except btle.BTLEException:
+        print ("btle.BTLEException")
