@@ -33,6 +33,10 @@ format_ms_duration = function(duration) {
     return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
 };
 
+is_in_range = function(utc_date_string, range_seconds) {
+    return moment.utc(utc_date_string).local() > moment().add(-1 * range_seconds, 'seconds');
+};
+
 API = my.Class(pinocchio.Service, {
     constructor: function(base_url) {
         API.Super.call(this, base_url, new pinocchio.security.PassiveSecurity() );
@@ -63,7 +67,6 @@ API = my.Class(pinocchio.Service, {
         this.post("/training", "", JSON.stringify({"beacon_uuid": beacon_uuid, "expectation": expectation}), callback, this._general_failure);
     }
 });
-
 
 ConfigManager = my.Class({
     constructor: function(api) {
@@ -156,12 +159,14 @@ ViewManager = my.Class({
             var template = _.template(
                     "<tr class='show-child-on-hover'>" +
                     "    <td>(<%- id %>) <%- uuid %> <div class='btn btn-xs btn-info btn-train hover-child' beacon='<%- uuid %>'>Create Training Entry</div></td>" +
-                    "    <td><%- last_active %></td>" +
+                    "    <td><%- last_active %> <%= last_active_icon %></td>" +
                     "    <td><%- total_packets %></td>" +
                     "</tr>");
 
             $tbody.empty();
             _.each(list, function(item) {
+
+                manager.add_html_status_icon(item, item.last_active);
                 item.last_active = format_datetime(item.last_active);
                 $tbody.append(template(item));
             });
@@ -213,7 +218,7 @@ ViewManager = my.Class({
                     "<tr>" +
                     "    <td>(<%- id %>) <%- uuid %></td>" +
                     "    <td><%- load %></td>" +
-                    "    <td><%- last_active %></td>" +
+                    "    <td><%- last_active %> <%= last_active_icon %></td>" +
                     "    <td><%- total_packets %></td>" +
                     "</tr>");
 
@@ -224,6 +229,7 @@ ViewManager = my.Class({
                     item.load = item.metadata.load;
                 }
 
+                manager.add_html_status_icon(item, item.last_active);
                 item.last_active = format_datetime(item.last_active);
                 $tbody.append(template(item));
             });
@@ -245,7 +251,7 @@ ViewManager = my.Class({
                     "<tr>" +
                     "    <td>(<%- id %>) <%- uuid %></td>" +
                     "    <td><%- sprite_count %></td>" +
-                    "    <td><%- last_active %></td>" +
+                    "    <td><%- last_active %> <%= last_active_icon %></td>" +
                     "    <td><%- runtime %></td>" +
                     "</tr>");
 
@@ -264,6 +270,8 @@ ViewManager = my.Class({
                     }
                 }
 
+                manager.add_html_status_icon(item, item.last_active);
+
                 item.last_active = format_datetime(item.last_active);
                 $tbody.append(template(item));
             });
@@ -272,7 +280,23 @@ ViewManager = my.Class({
         });
     },
     add_agent_hooks: function() {
+    },
 
+    add_html_status_icon: function(item, utc_date_string, range) {
+        range = range || 5;
+
+        if( is_in_range(item.last_active, range) ) {
+            item.last_active_icon = this.html_good_icon();
+        } else {
+            item.last_active_icon = this.html_bad_icon();
+        }
+    },
+
+    html_good_icon: function() {
+        return '<span class="glyphicon glyphicon glyphicon-ok text-success" aria-hidden="true"></span>';
+    },
+    html_bad_icon: function() {
+        return '<span class="glyphicon glyphicon glyphicon-remove text-danger" aria-hidden="true"></span>';
     }
 });
 
