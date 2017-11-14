@@ -7,8 +7,7 @@ from core.apiutil import require_fields, serialize_json, get_configuration
 from core.models import database
 
 from core.system import SystemBase
-from core.detector import DetectorActivity
-from core.beacon import BeaconActivity
+from core.activity import DetectorActivity, BeaconActivity, AgentActivity
 from core.classifier import Trainer, TrainingActivity
 
 import pickle
@@ -62,10 +61,21 @@ def get_option():
 @serialize_json()
 def post_detector():
     body = request.json
-    detector_activity = DetectorActivity(body["uuid"])
+    activity = DetectorActivity(body["uuid"])
 
     metadata = body["metadata"] if "metadata" in body else None
-    return detector_activity.checkin(metadata=metadata)
+    return activity.checkin(metadata=metadata)
+
+
+@post('/agent', is_api=True)
+@require_fields(["uuid"])
+@serialize_json()
+def post_agent():
+    body = request.json
+    activity = AgentActivity(body["uuid"])
+
+    metadata = body["metadata"] if "metadata" in body else None
+    return activity.checkin(metadata=metadata)
 
 
 # POST /rssi
@@ -95,6 +105,12 @@ def post_signal():
 @serialize_json()
 def get_detector():
     return DetectorActivity.get_all()
+
+
+@get('/agent', is_api=True)
+@serialize_json()
+def get_agent():
+    return AgentActivity.get_all()
 
 
 @get('/beacon', is_api=True)
@@ -178,6 +194,12 @@ def delete_signal():
 @serialize_json()
 def delete_detector():
     return { "deleted": DetectorActivity.clear_entities() }
+
+
+@delete('/agent', is_api=True)
+@serialize_json()
+def delete_agent():
+    return { "deleted": AgentActivity.clear_entities() }
 
 
 @delete('/beacon', is_api=True)

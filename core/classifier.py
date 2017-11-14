@@ -1,6 +1,6 @@
 
 from core.system import SystemBase
-from core.beacon import BeaconActivity
+from core.activity import BeaconActivity
 from core.models import Signal, Beacon, Detector
 from core.models import Training, TrainingSignal
 from datetime import datetime, timedelta

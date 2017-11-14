@@ -12,28 +12,28 @@ class BaseActionDelegate(object):
 
 class TimedAction(object):
 
-    def __init__(self, action_delegate, trigger_ms):
+    def __init__(self, action_delegate, action_rate_ms):
         self.action = action_delegate
 
-        self.trigger_ms = abs(trigger_ms)
-        self.counter_ms = 0
+        self.action_rate_ms = abs(action_rate_ms)
+        self.reset()
 
     def reset(self):
-        self.counter_ms = 0
+        self.trigger_ms = 0
 
     def tick(self, elapsed_time_ms):
-        self.counter_ms += elapsed_time_ms
+        self.trigger_ms += elapsed_time_ms
 
-        if self.counter_ms > self.trigger_ms:
+        if self.trigger_ms > self.action_rate_ms:
             self.action_delegate.act()
-            self.counter_ms = 0
+            self.trigger_ms = 0
 
 
 class ContinualTimedAction(TimedAction):
 
     def tick(self, elapsed_time_ms):
-        self.counter_ms += elapsed_time_ms
+        self.trigger_ms += elapsed_time_ms
 
-        while self.counter_ms > self.trigger_ms:
+        while self.trigger_ms > self.action_rate_ms:
             self.action_delegate.act()
-            self.counter_ms -= self.trigger_ms
+            self.trigger_ms -= self.action_rate_ms
