@@ -8,8 +8,8 @@ class API(object):
         self.base_url = base_url
         self.ignore_errors = ignore_errors
 
-    def checkin_detector(self, uuid, metadata=None):
-        url = self.base_url + "/detector"
+    def _checkin(self, resource_uri_fragment, uuid, metadata):
+        url = self.base_url + resource_uri_fragment
         payload = {'uuid': uuid, 'metadata': metadata}
 
         try:
@@ -19,6 +19,12 @@ class API(object):
                 print ("Failed to checkin to " + url)
             else:
                 raise
+
+    def checkin_detector(self, uuid, metadata=None):
+        self._checkin("/detector", uuid, metadata)
+
+    def checkin_agent(self, uuid, metadata=None):
+        self._checkin("/agent", uuid, metadata)
 
     def send_detector_signal(self, detector_uuid, beacon_uuid, rssi, data=None):
         url = self.base_url + "/signal"

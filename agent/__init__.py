@@ -13,9 +13,8 @@ class AgentRunException(Exception):
 
 class Agent(object):
 
-    def __init__(self, initial_state={}):
-        self.state = initial_state
-
+    def __init__(self, uuid):
+        self.uuid = uuid
         self.run_enable = False
         self.run_thread = None
 
@@ -83,9 +82,13 @@ class Agent(object):
 
 class StatefulAgent(Agent):
 
-    def __init__(self, initial_state={}):
-        super(StatefulAgent, self).__init__()
+    STATE_RUN_TIME_HRS = "runtime_hrs"
+    STATE_UUID = "uuid"
+
+    def __init__(self, uuid, initial_state={}):
+        super(StatefulAgent, self).__init__(uuid)
         self.state = initial_state
+        self._set_state(STATE_UUID, self.uuid)
 
     def load_state_from_file(self, json_file_path):
         json_data = open(json_file_path)
@@ -94,14 +97,33 @@ class StatefulAgent(Agent):
 
         self.state = data
 
-    def _value_from_state(self, key, default=None):
+    def _get_state(self, key, default=None):
         if key in self.state:
-            return self.state["key"]
+            return self.state[key]
 
         return default
 
+    def _set_state(self, key, value):
+        self.state[key] = value
+
+    def _setup(self):
+        self._set_state(StatefulAgent.STATE_RUN_TIME_HRS, 0)
+
+    def reason(self, elapsed_time_ms):
+        super(StatefulAgent, self).reason(elapsed_time_ms)
+
+        self._increment_runtime(elapsed_time_ms)
+
+    def _increment_runtime(self, elapsed_time_ms):
+        elapsed_hrs = self._get_state(StatefulAgent.STATE_RUN_TIME_HRS, 0)
+        elapsed_hrs += float(elapsed_time_ms) / 1000 / 60 / 60
+        self._set_state(StatefulAgent.STATE_RUN_TIME_HRS, elapsed_hrs)
+
 
 class BeaconAgent(StatefulAgent):
+
+    STATE_TRIGGER_TIME = "trigger_time_ms"
+    STATE_STALE_TIME = "stale_time_ms"
 
     @classmethod
     def _beacon_key(cls, beacon):
@@ -113,8 +135,8 @@ class BeaconAgent(StatefulAgent):
                  "last_heard_ms": 0.,
                  "trigger_ms": 0. }
 
-    def __init__(self, stale_time_ms=5*1000, trigger_time_ms=500, state={}):
-        super(BeaconAgent, self).__init__(state)
+    def __init__(self, uuid, stale_time_ms=5*1000, trigger_time_ms=500, state={}):
+        super(BeaconAgent, self).__init__(uuid, state)
 
         self.beacons = { }
         self.trigger_time_ms = trigger_time_ms
@@ -127,8 +149,11 @@ class BeaconAgent(StatefulAgent):
             self.trigger_time_ms = float(self.trigger_time_ms)
 
     def _setup(self):
-        self.trigger_time_ms = self._value_from_state("trigger_time_ms", self.trigger_time_ms)
-        self.stale_time_ms = self._value_from_state("stale_time_ms", self.stale_time_ms)
+        self.trigger_time_ms = self._get_state( BeaconAgent.STATE_TRIGGER_TIME, self.trigger_time_ms)
+        self.stale_time_ms = self._get_state( BeaconAgent.STATE_STALE_TIME, self.stale_time_ms)
+
+        self._set_state(BeaconAgent.STATE_SPRITE_COUNT, 0)
+        self._set_state(BeaconAgent.STATE_RUN_TIME_HRS, 0)
 
     def reason(self, elapsed_time_ms):
         super(BeaconAgent, self).reason(elapsed_time_ms)
@@ -179,8 +204,9 @@ class BeaconAgent(StatefulAgent):
 
 class HTTPBeaconAgent(BeaconAgent):
 
-    def __init__(self, api_url, refresh_max_rate_ms=250, stale_time_ms=5*1000, trigger_time_ms=500, state={}):
-        super(HTTPBeaconAgent, self).__init__( stale_time_ms=stale_time_ms,
+    def __init__(self, uuid, api_url, refresh_max_rate_ms=250, stale_time_ms=5*1000, trigger_time_ms=500, state={}):
+        super(HTTPBeaconAgent, self).__init__( uuid,
+                                               stale_time_ms=stale_time_ms,
                                                trigger_time_ms=trigger_time_ms,
                                                state=state )
         self.api_url = api_url
@@ -188,6 +214,7 @@ class HTTPBeaconAgent(BeaconAgent):
 
         self.refresh_max_rate_ms = refresh_max_rate_ms
         self.refresh_trigger_ms = 0
+        self.checkin_trigger_ms = 0
 
     def observe(self, elapsed_time_ms):
         super(HTTPBeaconAgent, self).observe(elapsed_time_ms)
@@ -201,6 +228,16 @@ class HTTPBeaconAgent(BeaconAgent):
 
         else:
             self.refresh_trigger_ms -= elapsed_time_ms
+
+    def act(self, elapsed_time_ms):
+        super(HTTPBeaconAgent, self).act(elapsed_time_ms)
+
+        if self.checkin_trigger_ms <= 0:
+            self.checkin()
+            self.checkin_trigger_ms = self.refresh_max_rate_ms * 10
+
+    def checkin(self):
+        self.api.checkin_agent(self.uuid, metadata=self.state)
 
     def get_active_beacons(self):
         beacons = self.api.get_active_beacons(self.stale_time_ms)
