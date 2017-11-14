@@ -56,6 +56,10 @@ class Beacon(ActiveEntity):
     pass
 
 
+class Agent(ActiveEntity):
+    pass
+
+
 class Signal(BaseModel):
     date = DateTimeField(default=datetime.utcnow)
     detector = ForeignKeyField(rel_model=Detector)
@@ -83,7 +87,8 @@ def initialize():
     database.connect()
 
     database.create_tables([ SystemOption ], safe=True)
-    database.create_tables([ Detector, Beacon, Signal ], safe=True)
+    database.create_tables([ Detector, Beacon, Agent ], safe=True)
+    database.create_tables([ Signal ], safe=True)
     database.create_tables([ Training, TrainingSignal ], safe=True)
 
     database.close()
