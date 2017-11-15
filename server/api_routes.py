@@ -90,6 +90,10 @@ def post_signal():
     if SystemBase().is_mode_off():
         abort(503, "Signal posting not allowed when system is in 'off' mode")
 
+    #regardless of accepting the signal, go ahead and check in the detector
+    detector_activity = DetectorActivity(body["detector_uuid"])
+    detector_activity.checkin()
+
     #if we don't fit the filter, dump the signal
     beacon_filter = SystemBase().get_option(SystemBase.FILTER_KEY)
     if beacon_filter and beacon_filter not in body["beacon_uuid"]:
@@ -97,7 +101,6 @@ def post_signal():
             uuid=body["beacon_uuid"],
             filter=beacon_filter))
 
-    detector_activity = DetectorActivity(body["detector_uuid"])
     return detector_activity.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 
 
