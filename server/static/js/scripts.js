@@ -25,12 +25,21 @@ format_ms_duration = function(duration) {
     var seconds = parseInt((duration/1000)%60, 10);
     var minutes = parseInt((duration/(1000*60))%60, 10);
     var hours = parseInt((duration/(1000*60*60))%24, 10);
+    var days = parseInt((duration/(1000*60*60*24)), 10);
 
     hours = (hours < 10) ? "0" + hours : hours;
     minutes = (minutes < 10) ? "0" + minutes : minutes;
     seconds = (seconds < 10) ? "0" + seconds : seconds;
 
-    return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+    if(days > 0) {
+        return days + "d " + hours + "h " + minutes + "m";
+    }
+
+    if(hours > 0) {
+        return hours + "h " + minutes + "m " + seconds + "s";
+    }
+
+    return minutes + "m " + seconds + "." + milliseconds + "s";
 };
 
 is_in_range = function(utc_date_string, range_seconds) {
@@ -104,12 +113,13 @@ ConfigManager = my.Class({
         var manager = this;
 
         $(".reset .btn").click(function() {
-            var target_resource = "/" + $(this).attr("resource");
-            manager.api.del(target_resource, "", function(data) {
-                toastr.success("Deleted {deleted} of resource type {resource}".format({
-                    "deleted": data.deleted || 0,
-                    "resource": target_resource }));
-            }, manager.api._general_failure);
+            _.each( $(this).attr("resource").split(","), function(target_resource) {
+                manager.api.del("/" + target_resource, "", function(data) {
+                    toastr.success("Deleted {deleted} of resource type {resource}".format({
+                        "deleted": data.deleted || 0,
+                        "resource": target_resource }));
+                }, manager.api._general_failure);
+            });
         });
     },
 
@@ -250,9 +260,9 @@ ViewManager = my.Class({
             var template = _.template(
                     "<tr>" +
                     "    <td>(<%- id %>) <%- uuid %></td>" +
-                    "    <td><%- sprite_count %></td>" +
-                    "    <td><%- last_active %> <%= last_active_icon %></td>" +
                     "    <td><%- runtime %></td>" +
+                    "    <td><%- last_active %> <%= last_active_icon %></td>" +
+                    "    <td><%- sprite_count %></td>" +
                     "</tr>");
 
             $tbody.empty();

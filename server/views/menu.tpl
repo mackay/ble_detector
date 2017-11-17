@@ -121,9 +121,9 @@
                 <thead>
                     <tr>
                         <th class="col-sm-5">ID</th>
-                        <th class="col-sm-3">Sprite Count</th>
-                        <th class="col-sm-3">Last Heard</th>
                         <th class="col-sm-3">Uptime</th>
+                        <th class="col-sm-3">Last Heard</th>
+                        <th class="col-sm-3">Sprites</th>
                     </tr>
                 </thead>
 
@@ -134,11 +134,17 @@
 
         <div class="section reset">
             <h2>Reset</h2>
-            <div class="btn btn-danger" resource="training">Delete Training Data</div>
-            <div class="btn btn-danger" resource="signal">Delete Signal Data</div>
-            <div class="btn btn-danger" resource="beacon">Delete Beacon Data</div>
-            <div class="btn btn-danger" resource="detector">Delete Detector Data</div>
-            <div class="btn btn-danger" resource="agent">Delete Agent Data</div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="btn btn-danger btn-block" resource="beacon,signal,training">Delete Beacon Data (and Signal + Training)</div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="btn btn-danger btn-block" resource="detector,signal,training">Delete Detector Data (and Signal + Training)</div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="btn btn-danger btn-block" resource="agent">Delete Agent Data</div>
+                </div>
+            </div>
     </div>
     <!-- /.container -->
 
