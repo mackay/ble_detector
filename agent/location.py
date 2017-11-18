@@ -49,7 +49,14 @@ class LocationAgent(HTTPBeaconAgent):
 
     def _get_beacon_color(self, beacon):
         if "metadata" in beacon and beacon["metadata"] and "color" in beacon["metadata"]:
-            return Pixel.from_rgb_string( beacon["metadata"]["color"] )
+            color = beacon["metadata"]["color"]
+
+            #we're going to toss some alpha on top if the color doesn't have any
+            #  ... this just looks better faded a bit
+            if len(color) == 6:
+                color += "44"
+
+            return Pixel.from_rgb_string( color )
 
         return None
 

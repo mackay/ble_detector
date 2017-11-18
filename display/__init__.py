@@ -44,7 +44,12 @@ class Pixel(object):
     @classmethod
     def from_rgb_string(cls, rgbstring):
         if len(rgbstring) >= 6:
-            rgb_tuple = tuple(int(rgbstring[i:i+2], 16) for i in (0, 2, 4))
+            tuple_set = (0, 2, 4)
+            if len(rgbstring) >= 8:
+                tuple_set = (0, 2, 4, 6)
+
+            rgb_tuple = tuple(int(rgbstring[i:i+2], 16) for i in tuple_set)
+
 
             return cls.from_tuple(rgb_tuple)
 
