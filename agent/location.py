@@ -2,7 +2,9 @@
 from agent import HTTPBeaconAgent
 
 from display import Pixel
-from display.atmosphere import ExpandingSplotches, Star
+from display.atmosphere import ExpandingSplotches
+from display.sprites import Point
+from display.dynamics import Lifespan
 
 
 #agent to map a discrete location strings to a color and react accordingly
@@ -59,17 +61,14 @@ class LocationAgent(HTTPBeaconAgent):
 
         return splotch
 
-    def _add_star(self, position, color):
-        star = Star.generate( color=color,
-                              position=position,
-                              min_movement=0,
-                              max_movement=0,
-                              world_size=self.world.size,
-                              fade_ms=2500)
-        self.world.add_sprite(star)
+    def _add_point(self, position, color):
+        point = Point( color=color, position=position )
+        point.add_dynamic( Lifespan(life_ms=2500) )
+
+        self.world.add_sprite(point)
         self._increment_sprite_count()
 
-        return star
+        return point
 
     def _increment_sprite_count(self):
         sprite_count = self._get_state(LocationAgent.STATE_SPRITE_COUNT, 0)
@@ -90,4 +89,4 @@ class LocationAgent(HTTPBeaconAgent):
             splotch = self._add_splotch(splotch_color)
 
             if beacon_color:
-                self._add_star(splotch.position, beacon_color)
+                self._add_point(splotch.position, beacon_color)
