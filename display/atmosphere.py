@@ -157,7 +157,7 @@ class Star(Point):
     ]
 
     @classmethod
-    def generate(cls, color=None, position=None, max_l_shift=0.3, min_movement=0.01, max_movement=0.05, world_size=25):
+    def generate(cls, color=None, position=None, max_l_shift=0.3, min_movement=0.01, max_movement=0.05, world_size=25, fade_ms=0):
         #static shape
         color = color or cls.get_color()
         position = randint(0, world_size)
@@ -165,7 +165,12 @@ class Star(Point):
 
         #dynamic activity
         movement = uniform(min_movement, max_movement)
-        star.add_dynamic( RightDrift(movement_chance=movement) )
+        if movement:
+            star.add_dynamic( RightDrift(movement_chance=movement) )
+
+        if fade_ms:
+            star.add_dynamic( AlphaLifespan(life_ms=fade_ms) )
+
         star.add_dynamic( Twinkle(max_l_shift=max_l_shift) )
 
         return star

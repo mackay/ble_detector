@@ -41,6 +41,15 @@ class Pixel(object):
                     b=rgb_or_rgba_tuple[cls.BLUE_INDEX]*255,
                     a=a*255 )
 
+    @classmethod
+    def from_rgb_string(cls, rgbstring):
+        if len(rgbstring) >= 6:
+            rgb_tuple = tuple(int(rgbstring[i:i+2], 16) for i in (0, 2, 4))
+
+            return cls.from_tuple(rgb_tuple)
+
+        return None
+
     def __init__(self, r=0, g=0, b=0, a=255):
         super(Pixel, self).__init__()
         self._components = [0] * 4

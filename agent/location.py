@@ -2,7 +2,7 @@
 from agent import HTTPBeaconAgent
 
 from display import Pixel
-from display.atmosphere import ExpandingSplotches
+from display.atmosphere import ExpandingSplotches, Star
 
 
 #agent to map a discrete location strings to a color and react accordingly
@@ -45,11 +45,31 @@ class LocationAgent(HTTPBeaconAgent):
 
         return None
 
+    def _get_beacon_color(self, beacon):
+        if "metadata" in beacon and beacon["metadata"] and "color" in beacon["metadata"]:
+            return Pixel.from_rgb_string( beacon["metadata"]["color"] )
+
+        return None
+
     def _add_splotch(self, color):
         splotch = ExpandingSplotches.generate_splotch(self.world.size, color)
         self.world.add_sprite( splotch )
 
         self._increment_sprite_count()
+
+        return splotch
+
+    def _add_star(self, position, color):
+        star = Star.generate( color=color,
+                              position=position,
+                              min_movement=0,
+                              max_movement=0,
+                              world_size=self.world.size,
+                              fade_ms=2500)
+        self.world.add_sprite(star)
+        self._increment_sprite_count()
+
+        return star
 
     def _increment_sprite_count(self):
         sprite_count = self._get_state(LocationAgent.STATE_SPRITE_COUNT, 0)
@@ -60,10 +80,14 @@ class LocationAgent(HTTPBeaconAgent):
         super(LocationAgent, self).act_on_beacon(beacon)
 
         splotch_color = self.default_color
+        beacon_color = self._get_beacon_color(beacon)
         location = self._get_beacon_location(beacon)
 
         if location and location in self.location_color_map:
             splotch_color = self.location_color_map[location]
 
         for i in range(0, self.splotches_per_action):
-            self._add_splotch(splotch_color)
+            splotch = self._add_splotch(splotch_color)
+
+            if beacon_color:
+                self._add_star(splotch.position, beacon_color)
