@@ -74,6 +74,19 @@ API = my.Class(pinocchio.Service, {
 
     create_training_entry: function(beacon_uuid, expectation, callback) {
         this.post("/training", "", JSON.stringify({"beacon_uuid": beacon_uuid, "expectation": expectation}), callback, this._general_failure);
+    },
+
+    set_beacon_checked: function(beacon_uuid, checked_flag, callback) {
+        this.post("/beacon", "", JSON.stringify({
+            "uuid": beacon_uuid,
+            "is_accepted": checked_flag ? 1: 0
+        }), callback, this._general_failure);
+    },
+    set_beacon_metadata: function(beacon_uuid, metadata, callback) {
+        this.post("/beacon", "", JSON.stringify({
+            "uuid": beacon_uuid,
+            "metadata": metadata
+        }), callback, this._general_failure);
     }
 });
 
@@ -167,27 +180,46 @@ ViewManager = my.Class({
             var $tbody = $(".section.beacon table tbody");
 
             var template = _.template(
-                    "<tr class='show-child-on-hover'>" +
-                    "    <td>(<%- id %>) <%- uuid %> <div class='btn btn-xs btn-info btn-train hover-child' beacon='<%- uuid %>'>Create Training Entry</div></td>" +
+                    "<tr class='show-child-on-hover beacon' beacon='<%- uuid %>'>" +
+                    "    <td><span class='inline-50'>(<%- id %>)</span>" +
+
+                    "        <input type=\"button\" "+
+                    "            class=\"minline-200 beacon-jscolor {valueElement:null,value:'<%- color %>',onFineChange:'check_hook(this)'}\" "+
+                    "            style=\"border:2px solid black\" onchange=\"trigger_change(this)\" "+
+                    "            value=\"<%- uuid %>\" >"+
+                    "        </input> "+
+                    "        <div class='btn btn-sm btn-info btn-train indent-left <% if(!is_accepted) { print(\'hide\'); } %>'>Train</div> " +
+                    "    </td>" +
+                    '    <td><div class="checkbox no-margin"><label><input type="checkbox" <% if(is_accepted) { print(\'checked=\"checked\"\'); } %> ></label></div></td>' +
                     "    <td><%- last_active %> <%= last_active_icon %></td>" +
                     "    <td><%- total_packets %></td>" +
                     "</tr>");
 
             $tbody.empty();
             _.each(list, function(item) {
-
                 manager.add_html_status_icon(item, item.last_active);
+
+                item.metadata = item.metadata || { };
                 item.last_active = format_datetime(item.last_active);
+
+                if( item.metadata.color ) {
+                    item.color = item.metadata.color;
+                } else {
+                    item.color = "ffffff";
+                }
+
                 $tbody.append(template(item));
             });
 
-            manager.add_beacon_hooks();
+            manager.add_beacon_hooks(list);
+
+            jscolor.installByClassName("beacon-jscolor");
         });
     },
-    add_beacon_hooks: function() {
+    add_beacon_hooks: function(list_of_beacons) {
         var manager = this;
 
-        $(".btn-train").click(function() {
+        $(".beacon .btn-train").click(function() {
             var $btn = $(this);
 
             //if the button is disabled, don't do anything
@@ -202,7 +234,7 @@ ViewManager = my.Class({
                 timeout = null;
             }, 1000);
 
-            var beacon_uuid = $(this).attr("beacon");
+            var beacon_uuid = $(this).closest(".beacon").attr("beacon");
             var expectation = JSON.parse( $("#training-data").val() );
 
             manager.api.create_training_entry(beacon_uuid, expectation, function() {
@@ -214,6 +246,32 @@ ViewManager = my.Class({
                     clearTimeout(timeout);
                     timeout = null;
                 }
+            });
+        });
+
+        $(".beacon .checkbox input").change(function() {
+            var beacon_uuid = $(this).closest(".beacon").attr("beacon");
+
+            manager.api.set_beacon_checked(beacon_uuid, this.checked, function() {
+                toastr.success("Toggled.");
+            });
+        });
+
+        $(".beacon .beacon-jscolor").click(function() {
+            stop_refreshing();
+        });
+        $(".beacon .beacon-jscolor").on("jscolor-change", function() {
+
+            var beacon_uuid = $(this).closest(".beacon").attr("beacon");
+            var beacon = _.find(list_of_beacons, function(needle) {
+                return needle.uuid == beacon_uuid;
+            });
+
+            var metadata = beacon.metadata || { };
+            metadata["color"] = this.jscolor.toString();
+
+            manager.api.set_beacon_metadata(beacon_uuid, metadata, function() {
+                toastr.success("Metadata Updated.");
             });
         });
     },
@@ -310,12 +368,29 @@ ViewManager = my.Class({
     }
 });
 
+
+//placeholders for color changing jscolor events
+stop_refreshing = function() {
+    if( $("#refresh:checked").length > 0 ) {
+        toastr.info("Disabling Automatic Refresh");
+        $("#refresh:checked").click();
+    }
+};
+check_hook = function(element) {
+    var a = 1;
+};
+trigger_change = function(element) {
+    var a =1;
+    //$(this).change();
+};
+
 environment = { };
 
 $(function(){
     environment.service = new API("./api");
     environment.config = new ConfigManager( environment.service );
 
-
     environment.view = new ViewManager( environment.service );
 });
+
+

@@ -78,6 +78,25 @@ def post_agent():
     return activity.checkin(metadata=metadata)
 
 
+@post('/beacon', is_api=True)
+@require_fields(["uuid"])
+@serialize_json()
+def post_beacon():
+    body = request.json
+    activity = BeaconActivity(body["uuid"])
+
+    metadata = body["metadata"] if "metadata" in body else None
+
+    checkin_response = activity.checkin(metadata=metadata)
+
+    if "is_accepted" in body:
+        beacon = activity.get()
+        beacon.is_accepted = 1 if body["is_accepted"] else 0
+        beacon.save()
+
+    return checkin_response
+
+
 # POST /rssi
 @post('/signal', is_api=True)
 @require_fields(["detector_uuid", "beacon_uuid", "rssi"])
@@ -94,12 +113,19 @@ def post_signal():
     detector_activity = DetectorActivity(body["detector_uuid"])
     detector_activity.checkin()
 
+    becon_activity = BeaconActivity(body["beacon_uuid"])
+    becon_activity.checkin()
+
     #if we don't fit the filter, dump the signal
     beacon_filter = SystemBase().get_option(SystemBase.FILTER_KEY)
     if beacon_filter and beacon_filter not in body["beacon_uuid"]:
-        abort(409, "Beacon UUID {uuid} not acceptable to current server filter: {filter}".format(
+        abort(409, "Signnals from beacon UUID {uuid} not acceptable to current server filter: {filter}".format(
             uuid=body["beacon_uuid"],
             filter=beacon_filter))
+
+    if not becon_activity.get().is_accepted:
+        abort(409, "Signals from beacon UUID {uuid} are not currently accepted.".format(
+            uuid=body["beacon_uuid"]))
 
     return detector_activity.add_signal(body["beacon_uuid"], body["rssi"], source_data=source_data)
 

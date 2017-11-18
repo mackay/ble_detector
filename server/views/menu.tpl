@@ -89,7 +89,8 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="col-sm-8">ID</th>
+                        <th class="col-sm-6">ID</th>
+                        <th class="col-sm-2">Signals</th>
                         <th class="col-sm-3">Last Heard</th>
                         <th class="col-sm-3">Packets</th>
                     </tr>
@@ -157,6 +158,7 @@
     <script src="./js/my.class.min.js"></script>
     <script src="./js/pinocchio.js"></script>
     <script src="./js/moment.min.js"></script>
+    <script src="./js/jscolor.js"></script>
     <script src="./js/scripts.js"></script>
 </body>
 </html>

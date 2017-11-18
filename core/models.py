@@ -53,7 +53,7 @@ class Detector(ActiveEntity):
 
 
 class Beacon(ActiveEntity):
-    pass
+    is_accepted = IntegerField(default=0)
 
 
 class Agent(ActiveEntity):

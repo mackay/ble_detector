@@ -23,8 +23,8 @@ class DetectorActivity(ActiveEntity):
         self.increment_packet_count()
 
         beacon_activity = BeaconActivity(beacon_uuid)
-        beacon = beacon_activity.checkin()
         beacon_activity.increment_packet_count()
+        beacon = beacon_activity.checkin()
 
         #add to DB
         signal = Signal.create(detector=self.get(), beacon=beacon, rssi=rssi, source_data=source_data)

@@ -23,3 +23,40 @@ body {
 	display:inline-block;
 }
 
+.no-margin {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.inline-25 {
+	width: 25px;
+	display: inline-block;
+}
+.inline-50 {
+	width: 50px;
+	display: inline-block;
+}
+.inline-100 {
+	width: 100px;
+	display: inline-block;
+}
+
+.minline-100 {
+	min-width: 50px;
+	display: inline-block;
+}
+.minline-150 {
+	min-width: 100px;
+	display: inline-block;
+}
+.minline-200 {
+	min-width: 200px;
+	display: inline-block;
+}
+
+.indent-left {
+	margin-left: 15px;
+}
+.indent-right {
+	margin-right: 15px;
+}
