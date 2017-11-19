@@ -136,13 +136,16 @@
         <div class="section reset">
             <h2>Reset</h2>
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="btn btn-danger btn-block" resource="beacon,signal,training">Delete Beacon Data (and Signal + Training)</div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
                     <div class="btn btn-danger btn-block" resource="detector,signal,training">Delete Detector Data (and Signal + Training)</div>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-3">
+                    <div class="btn btn-danger btn-block" resource="training">Delete Training Data</div>
+                </div>
+                <div class="col-sm-3">
                     <div class="btn btn-danger btn-block" resource="agent">Delete Agent Data</div>
                 </div>
             </div>
