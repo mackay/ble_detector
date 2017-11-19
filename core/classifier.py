@@ -191,12 +191,12 @@ class Trainer(ClassifierBase):
 
             if "_regression" in dimension:
                 network_class = MLPRegressor
-                hidden_layer_sizes = (100,)
+                hidden_layer_sizes = (20 * len(input_set[0]),) * len(input_set[0])
             else:
                 network_class = MLPClassifier
 
                 unique_outputs = set([ output for output in output_set ])
-                hidden_layer_sizes = (25 + len(unique_outputs), )
+                hidden_layer_sizes = (25 + len(unique_outputs), ) * len(input_set[0])
 
             network = network_class( solver='lbfgs',
                                      alpha=1e-5,
