@@ -60,8 +60,8 @@ class LocationAgent(HTTPBeaconAgent):
 
         return None
 
-    def _add_splotch(self, color):
-        splotch = ExpandingSplotches.generate_splotch(self.world.size, color)
+    def _add_splotch(self, color, position=None):
+        splotch = ExpandingSplotches.generate_splotch(self.world.size, color, position=position)
         self.world.add_sprite( splotch )
 
         self._increment_sprite_count()

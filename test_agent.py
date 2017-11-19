@@ -5,6 +5,7 @@ import signal
 import time
 
 from agent.location import LocationAgent
+from agent.linear import LinearAgent1D
 from display import World, Pixel
 from display.atmosphere import Ground
 
@@ -25,6 +26,20 @@ if __name__ == "__main__":
                         help='stale time in ms')
     parser.add_argument('-w', '--world', type=int, default=90,
                         help='size of the world in pixels')
+
+
+    parser.add_argument('--minpos', type=float, default=0.,
+                        help='minimum 1d location value')
+    parser.add_argument('--maxpos', type=float, default=1.,
+                        help='maximum 1d location value')
+    parser.add_argument('--locfield', type=str, default="location_regression",
+                        help='beacon metadata prediction field to look for location')
+
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument( '--linear-agent', action='store_const', dest='agent', const='linear')
+    group.add_argument( '--location-agent', action='store_const', dest='agent', const='location')
+    parser.set_defaults(agent='location')
 
     parser.add_argument('--virtual', action="store_true", dest="virtual", default=False,
                         help='Use pygame display')
@@ -81,12 +96,24 @@ if __name__ == "__main__":
         from display.renderers.text import ConsoleRenderer
         world.add_renderer( ConsoleRenderer(clear_on_render=False) )
 
-    agent = LocationAgent( arg.uuid,
-                           arg.url,
-                           world,
-                           location_color_map=location_color_map,
-                           stale_time_ms=arg.stale,
-                           trigger_time_ms=arg.rate )
+    if arg.agent == "location":
+        agent = LocationAgent( arg.uuid,
+                               arg.url,
+                               world,
+                               location_color_map=location_color_map,
+                               stale_time_ms=arg.stale,
+                               trigger_time_ms=arg.rate )
+    elif arg.agent == "linear":
+        agent = LinearAgent1D( arg.uuid,
+                               arg.url,
+                               world,
+
+                               min_position=arg.minpos,
+                               max_position=arg.maxpos,
+                               position_field=arg.locfield,
+
+                               stale_time_ms=arg.stale,
+                               trigger_time_ms=arg.rate )
 
     def signal_handler(signal, frame):
         print('\nStopping world run loop\n')

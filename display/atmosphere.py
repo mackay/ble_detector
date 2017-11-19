@@ -260,7 +260,7 @@ class ExpandingSplotches(DynamicSprite):
             self.add_sprite( ExpandingSplotches.generate_splotch(len(world.pixels)) )
 
     @classmethod
-    def generate_splotch(cls, world_size, color=None):
+    def generate_splotch(cls, world_size, color=None, position=None):
         COLORS = [
             [ 255, 0, 0 ],
             [ 0, 255, 0 ],
@@ -268,7 +268,10 @@ class ExpandingSplotches(DynamicSprite):
         ]
 
         color = color or Pixel.from_tuple( COLORS[ randint(0, len(COLORS)-1) ] )
-        position = randint(0, world_size)
+
+        if position is None:
+            position = randint(0, world_size)
+
         radius = randint(0, 2)
         splotch = SolidEdgeSplotch(color, position, radius)
 
