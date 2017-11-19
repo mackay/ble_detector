@@ -58,5 +58,6 @@ if __name__ == "__main__":
         for network in networks:
             pickle.dump(network, open(network.dimension + ".network", 'wb'))
 
-    for network in networks:
-        print network.dimension + ": " + str(network.predict(signals))
+    if signals:
+        for network in networks:
+            print network.dimension + ": " + str(network.predict(signals))
